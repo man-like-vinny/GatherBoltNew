@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+</head>
+    <!-- Css Link -->
+     <link rel="stylesheet" href="./main.css">
+     <!-- Icons Library link -->
+     <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
+
+  
+<body class="flex">
+
+  <div class="main">
+    <div class="sideMenu ">
+
+      <div class="logoDiv flex">
+        <div class="logoImage">
+          <img src="./assets/images/hamburger.png" alt="Logo Image">
+        </div>
+        <h1 class="logoText">
+          Foodie.
+        </h1>
+      </div>
+    
+      <div class="menuList">
+        <ul>
+    
+          <a href="dashboard.html">
+            <li class="list">
+              <i class="uil uil-analytics icon"></i>
+              <span class="listName">Dashboard</span>
+            </li>
+           </a>
+    
+         <a href="product.html">
+          <li class="list ">
+            <i class="uil uil-pizza-slice icon"></i>
+            <span class="listName">Products</span>
+          </li>
+         </a>
+         
+         <a href="customers.html">
+          <li class="list ">
+            <i class="uil uil-user-check icon"></i>
+            <span class="listName">Customers</span>
+          </li>
+         </a>
+    
+         <a href="orders.html">
+          <li class="list">
+            <i class="uil uil-shopping-cart-alt icon"></i>
+            <span class="listName">Orders</span>
+          </li>
+         </a>
+    
+         <a href="administrators.html">
+          <li class="list">
+            <i class="uil uil-folder-lock icon"></i>
+            <span class="listName">Administrators</span>
+          </li>
+         </a>
+    
+         <a href="delivery-Men.html">
+          <li class="list">
+            <i class="uil uil-car-sideview icon"></i>
+            <span class="listName">Delivery Boys</span>
+          </li>
+         </a>
+    
+         <a href="inventory.html">
+          <li class="list">
+            <i class="uil uil-swatchbook icon"></i>
+            <span class="listName">Inventory</span>
+          </li>
+         </a>
+    
+         <a href="promotions.html">
+          <li class="list">
+            <i class="uil uil-gift icon"></i>
+            <span class="listName">Promotions</span>
+          </li>
+         </a>
+    
+         <a href="settings.html">
+          <li class="list">
+            <i class="uil uil-setting icon"></i>
+            <span class="listName">Settings</span>
+          </li>
+         </a>
+    
+        </ul>
+      </div>
+    </div>
+
+      <div class="mainContent">
+        <div class="topSection flex">
+          <div class="seacrchBox flex">
+            <i class="uil uil-search icon"></i>
+            <input type="text" placeholder=" Search...">
+            <i class="uil uil-microphone icon"></i>
+          </div>
+
+          <div class="userBox flex">
+          <a href="index.html">
+            <div class="adminImage">
+              <img src="./assets/images/pp.jpg" alt="Admin Image">
+            </div>
+          </a>
+          <div class="userName">
+            <span>Manager</span>
+          <small>IsraTech</small>
+          </div>
+          <i class="uil uil-bell icon"></i>
+          </div>
+        </div>
+
+        <div class="body">
+        <div class="overViewDiv">
+           <div class="intro flex" >
+             <h3 class="title">Settings</h3>
+            <div class="addBtn">
+              <a href="dashboard.html">
+                <span>Save Settings</span>
+              </a>
+            </div>
+           </div>
+          </div>
+
+          <div class="settingsContainer flex">
+            <div class="rowsDiv">
+              <div class="row">
+                <label for="username">User Name <small>Click to change</small></label>
+                <input type="text" id="username" placeholder="Isratech">
+               </div>
+               <div class="row">
+                <label for="id">National ID No. <small>Click to change</small></label>
+                <input type="text" id="id" placeholder="CYN2553763288">
+               </div>
+               <div class="row">
+                <label for="email">My Email <small>Click to change</small></label>
+                <input type="email" id="email" placeholder="abagraphicx@gmail.com">
+               </div>
+               <div class="row">
+                <label for="pass">My Password <small>Click to change</small></label>
+                <input type="password" id="pass" placeholder="isratech.1">
+               </div>
+               <div class="row">
+                <label for="roles">My Role <small>Click to change</small></label>
+                <select id="roles">
+                  <option value="admin" selected>Administrator</option>
+                  <option value="manager">Manager</option>
+                  <option value="sales" >Sales</option>
+                  <option value="editor" >Editor</option>
+                </select>
+               </div>
+               <div class="row">
+                 <label for="">Change Theme</label>
+                 <div class="colors">
+                   <div class="color green"></div>
+                   <div class="color red"></div>
+                   <div class="color blue"></div>
+                   <div class="color black"></div>
+                 </div>
+               </div>
+            </div>
+            <div class="pictureDiv grid">
+              <h1>Update Profile Picture</h1>
+              <div class="imgDiv">
+                <img src="./assets/images/pp.jpg" alt="" id="image">
+               <input type="file" id="file" >
+               <label for="file" id="imgBtn">Change Image</label>
+             </div>
+
+            </div>
+            
+          </div>
+          
+        
+
+        </div>
+      </div>
+  </div>
+
+
+
+
+  <!-- Fucntion to change color theme -->
+  <script>
+    const colorBtn = document.getElementsByClassName('color')
+
+colorBtn[0].onclick = ()=>{
+       document.body.classList.add('green')
+}
+colorBtn[1].onclick = ()=>{
+       document.body.classList.add('red')
+}
+colorBtn[2].onclick = ()=>{
+       document.body.classList.add('blue')
+}
+colorBtn[3].onclick = ()=>{
+       document.body.classList.add('black')
+}
+
+
+
+// Image Upload Functionality
+const file = document.getElementById('file')
+const img = document.querySelector('#image')
+
+ // Function to change image
+ file.addEventListener('change', function(){
+    const choosedFile = this.files[0]
+    if(choosedFile){
+        const reader = new FileReader();
+        
+        reader.addEventListener('load', function(){
+           img.setAttribute('src', reader.result)  
+        })
+        reader.readAsDataURL(choosedFile)
+    }
+  })
+  </script>
+
+  
+  </body>
+  </html>

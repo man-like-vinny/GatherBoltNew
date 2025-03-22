@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>test file</title>
+    <link rel="stylesheet" href="example.css" />
+</head>
+<body>
+    <button class="rock" onclick="
+            move = pickComputerMove()
+            if(move == 'Rock'){
+                console.log('The computer chose:', move);
+                result = 'you drew';
+                score.ties+=1;
+            }
+
+            else if(move == 'Paper'){
+                console.log('The computer chose:', move);
+                result = 'you lost';
+                score.losses+=1;
+            }
+            else{
+                console.log('The computer chose:', move);
+                result = 'you won';
+                score.wins+=1;
+            }
+
+            console.log(score)
+        ">Rock</button>
+    <button class="paper">Paper</button>
+    <button class="scissors">Scissors</button>
+    <script>
+        const score = {
+            wins: 0,
+            losses: 0,
+            ties: 0
+        };
+
+        function pickComputerMove() {
+            let move = '';
+            const computerMove = Math.random();
+            if(computerMove < 0.333 && computerMove  >= 0){
+                move = 'Rock';
+            }
+            else if(computerMove < 0.666 && computerMove  >= 0.333){
+                move = 'Paper';
+            }
+            else{
+                move = 'Scissors';
+            }
+            return move;
+        }
+    </script>   
+</body>
+</html>

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+</head>
+    <!-- Css Link -->
+     <link rel="stylesheet" href="./main.css">
+     <!-- Icons Library link -->
+     <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
+
+  
+<body class="flex">
+
+  <div class="main">
+    <div class="sideMenu ">
+
+      <div class="logoDiv flex">
+        <div class="logoImage">
+          <img src="./assets/images/hamburger.png" alt="Logo Image">
+        </div>
+        <h1 class="logoText">
+          Foodie.
+        </h1>
+      </div>
+    
+      <div class="menuList">
+        <ul>
+    
+          <a href="dashboard.html">
+            <li class="list">
+              <i class="uil uil-analytics icon"></i>
+              <span class="listName">Dashboard</span>
+            </li>
+           </a>
+    
+         <a href="product.html">
+          <li class="list ">
+            <i class="uil uil-pizza-slice icon"></i>
+            <span class="listName">Products</span>
+          </li>
+         </a>
+         
+         <a href="customers.html">
+          <li class="list ">
+            <i class="uil uil-user-check icon"></i>
+            <span class="listName">Customers</span>
+          </li>
+         </a>
+    
+         <a href="orders.html">
+          <li class="list">
+            <i class="uil uil-shopping-cart-alt icon"></i>
+            <span class="listName">Orders</span>
+          </li>
+         </a>
+    
+         <a href="administrators.html">
+          <li class="list">
+            <i class="uil uil-folder-lock icon"></i>
+            <span class="listName">Administrators</span>
+          </li>
+         </a>
+    
+         <a href="delivery-Men.html">
+          <li class="list">
+            <i class="uil uil-car-sideview icon"></i>
+            <span class="listName">Delivery Boys</span>
+          </li>
+         </a>
+    
+         <a href="inventory.html">
+          <li class="list">
+            <i class="uil uil-swatchbook icon"></i>
+            <span class="listName">Inventory</span>
+          </li>
+         </a>
+    
+         <a href="promotions.html">
+          <li class="list">
+            <i class="uil uil-gift icon"></i>
+            <span class="listName">Promotions</span>
+          </li>
+         </a>
+    
+         <a href="settings.html">
+          <li class="list">
+            <i class="uil uil-setting icon"></i>
+            <span class="listName">Settings</span>
+          </li>
+         </a>
+    
+        </ul>
+      </div>
+    </div>
+
+      <div class="mainContent">
+        <div class="topSection flex">
+          <div class="seacrchBox flex">
+            <i class="uil uil-search icon"></i>
+            <input type="text" placeholder=" Search...">
+            <i class="uil uil-microphone icon"></i>
+          </div>
+
+          <div class="userBox flex">
+            <a href="index.html">
+              <div class="adminImage">
+                <img src="./assets/images/pp.jpg" alt="Admin Image">
+              </div>
+            </a>
+          <div class="userName">
+            <span>Manager</span>
+          <small>IsraTech</small>
+          </div>
+          <i class="uil uil-bell icon"></i>
+          </div>
+        </div>
+
+        <div class="body">
+          <div class="overViewDiv">
+           <div class="intro flex" >
+             <h3 class="title">Administrators</h3>
+            <div class="addBtn">
+              <a href="">
+                <span>Add Admin</span>
+              </a>
+            </div>
+           </div>
+          </div>
+          <div class="mainItems">
+            <table>
+           
+                <tr  class="tableHeader">
+                  <th>Admin ID</th>
+                  <th>Image</th>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Phone No.</th>
+                  <th>Roles</th>
+                  <th>Edit</th>
+                  <th>Delete</th>
+                  </tr>
+            
+              <tr class="tableData">
+                <td>001</td>
+                <td><img src="./assets/images/boy (1).jpg" style="width: 40px; height: 40px; border-radius: 50%;"></td>
+                <td>Ameer Johnstone</td>
+                <td>ameer@gmail.com</td>
+                <td>+4417 826 352</td>
+                <td>Editor</td>
+                <td><i class="uil uil-edit icon editIcon"></i></td>
+                <td> <i class="uil uil-times-square icon deleteIcon"></i></td>
+              </tr>
+              <tr class="tableData active">
+                <td>002</td>
+                <td><img src="./assets/images/boy (2).jpg" style="width: 40px; height: 40px; border-radius: 50%;"></td>
+                <td>Naem Rebert</td>
+                <td>ameer@gmail.com</td>
+                <td>+4417 826 109</td>
+                <td>Manager</td>
+                <td><i class="uil uil-edit icon editIcon"></i></td>
+                <td> <i class="uil uil-times-square icon deleteIcon"></i></td>
+              </tr>
+              <tr class="tableData">
+                <td>003</td>
+                <td><img src="./assets/images/boy (3).jpg" style="width: 40px; height: 40px; border-radius: 50%;"></td>
+                <td>Ciol Uouy</td>
+                <td>ciuos78@gmail.com</td>
+                <td>+4417 102 352</td>
+                <td>Sales</td>
+                <td><i class="uil uil-edit icon editIcon"></i></td>
+                <td> <i class="uil uil-times-square icon deleteIcon"></i></td>
+              </tr>
+              <tr class="tableData active">
+                <td>004</td>
+                <td><img src="./assets/images/boy (4).jpg" style="width: 40px; height: 40px; border-radius: 50%;"></td>
+                <td>Kamran Benjamin</td>
+                <td>kamran@gmail.com</td>
+                <td>+4417 234 892</td>
+                <td>Admin</td>
+                <td><i class="uil uil-edit icon editIcon"></i></td>
+                <td> <i class="uil uil-times-square icon deleteIcon"></i></td>
+              </tr>
+             
+            </table>
+          </div>
+
+        </div>
+      </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+  <script src="./chart.js"></script>
+  
+  </body>
+  </html>

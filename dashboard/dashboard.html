@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+</head>
+    <!-- Css Link -->
+     <link rel="stylesheet" href="./main.css">
+     <!-- Icons Library link -->
+     <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css">
+
+  
+<body class="flex">
+
+  <div class="main">
+      
+
+<div class="sideMenu ">
+
+  <div class="logoDiv flex">
+    <div class="logoImage">
+      <img src="./assets/images/companylogo2.png" alt="Logo Image">
+    </div>
+    <h1 class="logoText">
+      Eventifyed
+    </h1>
+  </div>
+
+  <div class="menuList">
+    <ul>
+
+      <a href="dashboard.html">
+        <li class="list">
+          <i class="uil uil-analytics icon"></i>
+          <span class="listName">Dashboard</span>
+        </li>
+       </a>
+
+     <a href="product.html">
+      <li class="list ">
+        <i class="uil uil-pizza-slice icon"></i>
+        <span class="listName">Products</span>
+      </li>
+     </a>
+     
+     <a href="customers.html">
+      <li class="list ">
+        <i class="uil uil-user-check icon"></i>
+        <span class="listName">Customers</span>
+      </li>
+     </a>
+
+     <a href="orders.html">
+      <li class="list">
+        <i class="uil uil-shopping-cart-alt icon"></i>
+        <span class="listName">Orders</span>
+      </li>
+     </a>
+
+     <a href="administrators.html">
+      <li class="list">
+        <i class="uil uil-folder-lock icon"></i>
+        <span class="listName">Administrators</span>
+      </li>
+     </a>
+
+     <a href="delivery-Men.html">
+      <li class="list">
+        <i class="uil uil-car-sideview icon"></i>
+        <span class="listName">Delivery Boys</span>
+      </li>
+     </a>
+
+     <a href="inventory.html">
+      <li class="list">
+        <i class="uil uil-swatchbook icon"></i>
+        <span class="listName">Inventory</span>
+      </li>
+     </a>
+
+     <a href="promotions.html">
+      <li class="list">
+        <i class="uil uil-gift icon"></i>
+        <span class="listName">Promotions</span>
+      </li>
+     </a>
+
+     <a href="settings.html">
+      <li class="list">
+        <i class="uil uil-setting icon"></i>
+        <span class="listName">Settings</span>
+      </li>
+     </a>
+
+    </ul>
+  </div>
+</div>
+
+
+      <div class="mainContent">
+        <div class="topSection flex">
+          <div class="seacrchBox flex">
+            <i class="uil uil-search icon"></i>
+            <input type="text" placeholder=" Search...">
+            <i class="uil uil-microphone icon"></i>
+          </div>
+
+          <div class="userBox flex">
+            <a href="index.html">
+              <div class="adminImage">
+                <img src="./assets/images/pp.jpg" alt="Admin Image">
+              </div>
+            </a>
+          <div class="userName">
+            <span>Manager</span>
+          <small>IsraTech</small>
+          </div>
+          <i class="uil uil-bell icon"></i>
+          </div>
+        </div>
+
+        <div class="body">
+          <div class="overViewDiv">
+           <div class="intro flex" >
+             <h3 class="title">Overview</h3>
+             <div class="flex">
+              <div class="iconDiv">
+                <i class="uil uil-toggle-off icon toggleIcon"></i>
+              </div>
+              <select name="" id="select">
+                <option value="Today">Today</option>
+                <option value="Monday">Monday</option>
+                <option value="Tuesday">Tuesday</option>
+                <option value="Wednesday">Wednesday</option>
+                <option value="Thursday">Thursday</option>
+                <option value="Friday">Friday</option>
+                <option value="Saturday">Saturday</option>
+                <option value="Sunday">Sunday</option>
+              </select>
+             </div>
+           </div>
+          </div>
+          
+          <div class="analysisDiv grid">
+                  <div class="card">
+
+                    <div class="cartTitle flex">
+                      <i class="uil uil-pizza-slice icon"></i>
+                      <span>Products</span>
+                      <h1>14</h1>
+                    </div>
+
+                    <div class="cardBody">
+                      <h2>$4,520
+                        <span class="percentage">Sales
+                          <i class="uil uil-arrow-up icon"></i>
+                        </span>
+                      </h2>
+                    </div>
+
+                    <small>Compared to ($1,455 last year!)</small>
+                  </div>
+                  <div class="card">
+
+                    <div class="cartTitle flex">
+                      <i class="uil uil-user-check icon"></i>
+                      <span>Customers</span>
+                      <h1>25</h1>
+                    </div>
+
+                    <div class="cardBody">
+                      <h2>$2,590
+                        <span class="percentage">Paid
+                          <i class="uil uil-arrow-up icon"></i>
+                        </span>
+                      </h2>
+                    </div>
+
+                    <small>Compared to (12 last year!)</small>
+                  </div>
+                  <div class="card active ">
+
+                    <div class="cartTitle flex">
+                      <i class="uil uil-shopping-bag icon"></i>
+                      <span>Orders</span>
+                      <h1>14</h1>
+                    </div>
+
+                    <div class="cardBody">
+                      <h2>$2,590
+                        <span class="percentage negativeNumber">-4%
+                          <i class="uil uil-arrow-down icon negativeNumber"></i>
+                        </span>
+                      </h2>
+                    </div>
+
+                    <small>Compared to ($3,455 last year!)</small>
+                  </div>
+                  <div class="card">
+
+                    <div class="cartTitle flex">
+                      <i class="uil uil-chart-growth icon"></i>
+                      <span>Net Sales</span>
+                      <h1>25th</h1>
+                    </div>
+
+                    <div class="cardBody">
+                      <h2>$5,020
+                        <span class="percentage  negativeNumber">-2%
+                          <i class="uil uil-arrow-down icon negativeNumber"></i>
+                        </span>
+                      </h2>
+                    </div>
+
+                    <small>Compared to ($5,455 last year!)</small>
+                  </div>
+                  
+          </div>
+
+           <div class="graphDiv_foodDiv_deliveryBoyDiv grid">
+             <div class="graphDiv">
+              <div class="intro flex" >
+                <h3 class="title">Overview</h3>
+                <select name="" id="select">
+                  <option value="Today">Today</option>
+                  <option value="Monday">Monday</option>
+                  <option value="Tuesday">Tuesday</option>
+                  <option value="Wednesday">Wednesday</option>
+                  <option value="Thursday">Thursday</option>
+                  <option value="Friday">Friday</option>
+                  <option value="Saturday">Saturday</option>
+                  <option value="Sunday">Sunday</option>
+                </select>
+              </div>
+              <canvas id="line" width="200px" height="90px"></canvas>
+             </div>
+             
+             <div class="foodDiv_deliveryBoyDiv grid">
+               <div class="foodDiv">
+                  <div class="intro" >
+                  <h3 class="title">Most Popular</h3>
+                  </div>
+
+                  <div class="foodItem flex">
+                    <img src="./assets/images/food (1).png" alt="Food Image">
+                    <div class="imgText">
+                      <span class="imageName">
+                        Special chicken
+                      </span>
+                      <small>234 Orders <strong>+$120 earned</strong></small>
+                    </div>
+                  </div>
+                  <div class="foodItem flex">
+                    <img src="./assets/images/food (2).png" alt="Food Image">
+                    <div class="imgText">
+                      <span class="imageName">
+                        Sumbi chicken
+                      </span>
+                      <small>334 Orders <strong>+$124 earned</strong></small>
+                    </div>
+                  </div>
+                  <div class="foodItem flex">
+                    <img src="./assets/images/food (3).png" alt="Food Image">
+                    <div class="imgText">
+                      <span class="imageName">
+                        Chips chicken
+                      </span>
+                      <small>184 Orders <strong>+$104 earned</strong></small>
+                    </div>
+                  </div>
+                  <div class="foodItem flex">
+                    <img src="./assets/images/food (4).png" alt="Food Image">
+                    <div class="imgText">
+                      <span class="imageName">
+                         Roasted Chicken
+                      </span>
+                      <small>364 Orders <strong>+$120 earned</strong></small>
+                    </div>
+                  </div>
+               </div>
+               <div class="deliveryBoyDiv">
+                <div class="intro" >
+                  <h3 class="title">Delivery Boys</h3>
+                  <div class="boysDiv flex">
+                    <img src="./assets/images/boy (1).jpg" alt="Delivery Boy Image">
+                    <img src="./assets/images/boy (2).jpg" alt="Delivery Boy Image">
+                    <img src="./assets/images/boy (3).jpg" alt="Delivery Boy Image">
+                    <img src="./assets/images/boy (4).jpg" alt="Delivery Boy Image">
+                    <img src="./assets/images/boy (2).jpg" alt="Delivery Boy Image">
+                  </div>
+                  </div>
+               </div>
+             </div>
+           </div>
+
+        </div>
+      </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+  <script src="./chart.js"></script>
+  <script src="./index.js"></script>
+
+
+
+  <!-- Function to change theme color -->
+<script>
+const iconDivv = document.querySelector('.iconDiv')
+iconDivv.addEventListener('click', function(){
+    document.body.classList.toggle('black')
+    if(document.body.classList.contains('black')){
+      iconDivv.innerHTML = `<i class="uil uil-toggle-on icon toggleIcon"></i>`
+    }
+    else{
+      iconDivv.innerHTML = `<i class="uil uil-toggle-off icon toggleIcon"></i>`
+    }  
+})
+  </script>
+  
+  </body>
+  </html>

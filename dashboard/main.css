@@ -1,0 +1,781 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&display=swap");
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  scroll-behavior: smooth;
+  font-family: "Poppins", sans-serif;
+  transition: 0.3s ease;
+}
+
+:root {
+  --primaryColor: #459a7d;
+  --secondaryColor: #f3f6f8;
+  --whiteColor: #fff;
+  --greyColor: rgb(164, 172, 164);
+  --bgColor: #ebf1f3;
+  --hoverColor: #5eaa90;
+  --mainItemBGColor: #b0cac15e;
+  --tdActiveColor: #b0cac15e;
+  --tdHoverColor: #b0cac1;
+}
+
+.green {
+  --primaryColor: #459a7d;
+  --secondaryColor: #f3f6f8;
+  --whiteColor: #fff;
+  --greyColor: rgb(164, 172, 164);
+  --bgColor: #ebf1f3;
+  --hoverColor: #5eaa90;
+  --mainItemBGColor: #b0cac15e;
+  --tdActiveColor: #b0cac15e;
+  --tdHoverColor: #b0cac1;
+}
+
+.red {
+  --primaryColor: #ff0000;
+  --secondaryColor: #f8f3f3;
+  --whiteColor: #fff;
+  --greyColor: rgb(172, 164, 164);
+  --bgColor: #f3ebeb;
+  --hoverColor: #aa5e5e;
+  --mainItemBGColor: #cab0b05e;
+  --tdActiveColor: #cab0b05e;
+  --tdHoverColor: #cab0b0;
+}
+
+.blue {
+  --primaryColor: #0004ff;
+  --secondaryColor: #f3f3f8;
+  --whiteColor: #fff;
+  --greyColor: rgb(166, 164, 172);
+  --bgColor: #ebebf3;
+  --hoverColor: #5e63aa;
+  --mainItemBGColor: #b0b2ca5e;
+  --tdActiveColor: #b0b0ca5e;
+  --tdHoverColor: #b2b0ca;
+}
+
+.black {
+  --primaryColor: #3c3b64;
+  --secondaryColor: #f8f3f3;
+  --whiteColor: rgb(221, 218, 218);
+  --greyColor: rgb(189, 189, 189);
+  --bgColor: #e2e2e2;
+  --hoverColor: #595570;
+  --mainItemBGColor: #7774745e;
+  --tdActiveColor: #beb8b85e;
+  --tdHoverColor: #a5a2a2;
+}
+
+body {
+  background: var(--bgColor);
+  padding-top: 1rem;
+}
+
+a {
+  text-decoration: none;
+}
+
+li {
+  list-style: none;
+}
+
+.grid {
+  display: grid;
+  gap: 2rem;
+}
+
+.flex {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+h1 {
+  font-size: 25px;
+}
+
+.icon {
+  font-size: 20px;
+  cursor: pointer;
+}
+
+img {
+  width: 100%;
+  height: auto;
+}
+
+.main {
+  position: relative;
+  width: 90vw;
+  height: 95vh;
+  background: var(--secondaryColor);
+  border-radius: 1rem;
+  box-shadow: 0px 4px 8px rgba(171, 189, 182, 0.685);
+}
+.main .sideMenu {
+  height: 100%;
+  width: 25%;
+  background: var(--primaryColor);
+  border-top-left-radius: 1rem;
+  border-bottom-left-radius: 1rem;
+  overflow: hidden;
+}
+.main .sideMenu .logoDiv {
+  background: var(--hoverColor);
+  padding: 2rem 5rem 2rem 0;
+}
+.main .sideMenu .logoDiv .logoImage img {
+  height: auto;
+  width: 50px;
+  cursor: pointer;
+}
+.main .sideMenu .logoText {
+  color: var(--whiteColor);
+  cursor: pointer;
+}
+.main .sideMenu .menuList {
+  margin: 2.5rem 0;
+  padding-right: 3rem;
+  width: 100%;
+}
+.main .sideMenu .menuList ul {
+  display: grid;
+  text-align: left;
+}
+.main .sideMenu .menuList .list {
+  padding: 10px 2rem 10px 4rem;
+  color: var(--bgColor);
+  cursor: pointer;
+}
+.main .sideMenu .menuList .list:hover {
+  background: var(--hoverColor);
+  border-left: 2px solid var(--bgColor);
+}
+.main .sideMenu .menuList .list .icon {
+  margin-right: 10px;
+  font-size: 25px;
+}
+.main .sideMenu .menuList .list .listName {
+  font-size: 1.1rem;
+}
+.main .sideMenu .menuList .list .listActive {
+  background: var(--hoverColor);
+  border-left: 2px solid var(--bgColor);
+}
+.main .mainContent {
+  position: absolute;
+  background: var(--secondaryColor);
+  height: 100%;
+  width: 80%;
+  right: 0;
+  top: 0;
+  border-radius: 1rem;
+  padding: 1.5rem;
+}
+.main .mainContent .topSection {
+  width: 100%;
+  padding: 0 1rem;
+}
+.main .mainContent .topSection .seacrchBox {
+  flex: 1;
+  background: var(--whiteColor);
+  padding: 10px;
+  border-radius: 0.5rem;
+  margin-right: 1rem;
+}
+.main .mainContent .topSection .seacrchBox input {
+  background: none;
+  outline: none;
+  border: none;
+  padding: 5px;
+  font-size: 15px;
+  flex: 1;
+}
+.main .mainContent .topSection .seacrchBox .icon {
+  opacity: 0.7;
+}
+.main .mainContent .topSection .seacrchBox .icon:hover {
+  opacity: 1;
+}
+.main .mainContent .topSection .userBox {
+  background: var(--whiteColor);
+  padding: 10px;
+  border-radius: 0.5rem;
+  gap: 10px;
+}
+.main .mainContent .topSection .userBox .adminImage {
+  position: relative;
+  height: 40px;
+  width: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+}
+.main .mainContent .topSection .userBox .adminImage img {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  -o-object-fit: cover;
+     object-fit: cover;
+}
+.main .mainContent .topSection .userBox span {
+  line-height: 10px;
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  transform: translateY(5px);
+}
+.main .mainContent .topSection .userBox .icon {
+  font-size: 25px;
+  position: relative;
+}
+.main .mainContent .topSection .userBox .icon::after {
+  content: "";
+  height: 8px;
+  width: 8px;
+  border-radius: 50%;
+  background: rgb(255, 217, 0);
+  position: absolute;
+  top: 10px;
+  right: 2px;
+}
+.main .mainContent .body {
+  height: 90%;
+  width: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  padding: 0 1rem;
+  position: relative;
+  z-index: 1;
+}
+.main .mainContent .body .portalContainer {
+  position: fixed;
+  top: 50%;
+  left: 55%;
+  transform: translate(-50%, -50%);
+  width: 66rem;
+  height: 43rem;
+  z-index: 2;
+  background: white;
+  border-radius: 30px;
+  opacity: 1;
+  border: 4px solid #000;
+}
+
+#ticketTypeInputs {
+  display: flex;
+}
+
+#ticketTypeInputs label {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+#ticketTypeInputs label input {
+  margin-right: 10px;
+}
+
+.main .mainContent .body .portalContainer h3{
+  margin-left: 20px;
+}
+
+.main .mainContent .body .portalContainer .contactform{
+  background: white;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-height: 460px;
+  max-width: max-content;
+  height: 100%;
+  margin-left: 20px;
+  z-index: 100;
+  background-color: red;
+}
+
+form h3{
+  color: 555;
+  font-weight: 800;
+  margin-bottom: 20px;
+}
+
+form input{
+  border: 0;
+  margin: 10px;
+  padding: 10px;
+  outline: none;
+  background: #f5f5f5;
+  font-size: 16px;
+  width: 80%;
+}
+
+form textarea{
+  border: 0;
+  margin: 10px;
+  outline: none;
+  background: #f5f5f5;
+  font-size: 16px;
+  width: 80%;
+}
+
+form button{
+  padding: 15px;
+  background: #ff5361;
+  color: white;
+  font-size: 18px;
+  border: 0;
+  outline: none;
+  cursor: pointer;
+  width: 150px;
+  margin: 20px auto 0;
+  border-radius: 30px;
+}
+.main .mainContent .body .overViewDiv .intro {
+  width: 100%;
+  justify-content: space-between;
+  padding: 1rem 5px;
+}
+.main .mainContent .body .overViewDiv .intro .toggleIcon {
+  font-size: 30px;
+  margin-right: 1rem;
+  color: var(--primaryColor);
+  cursor: pointer;
+}
+.main .mainContent .body .overViewDiv .intro #select {
+  border: 1px solid var(--primaryColor);
+  padding: 5px;
+  background: var(--whiteColor);
+  border-radius: 5px;
+}
+.main .mainContent .body .overViewDiv .intro #select:focus {
+  outline: none;
+}
+.main .mainContent .body .analysisDiv {
+  grid-template-columns: repeat(4, 1fr);
+}
+.main .mainContent .body .analysisDiv .card {
+  padding: 1rem;
+  background-color: var(--whiteColor);
+  display: grid;
+  border-radius: 1rem;
+  cursor: pointer;
+  transition: none;
+  box-shadow: 0px 2px 8px var(--mainItemBGColor);
+}
+.main .mainContent .body .analysisDiv .card:hover {
+  background: var(--primaryColor);
+  color: var(--whiteColor);
+}
+.main .mainContent .body .analysisDiv .card:hover small {
+  color: var(--whiteColor);
+}
+.main .mainContent .body .analysisDiv .card:hover .percentage {
+  color: var(--bgColor) !important;
+}
+.main .mainContent .body .analysisDiv .card:hover h1 {
+  color: var(--whiteColor) !important;
+}
+.main .mainContent .body .analysisDiv .card:hover .icon {
+  color: var(--whiteColor) !important;
+}
+.main .mainContent .body .analysisDiv .card:hover .negativeNumber {
+  color: rgb(255, 145, 0) !important;
+}
+.main .mainContent .body .analysisDiv .card .cartTitle {
+  transition: none;
+  padding: 0 5px 10px 0;
+  justify-content: flex-start;
+}
+.main .mainContent .body .analysisDiv .card .cartTitle .icon {
+  margin-right: 0.5rem;
+  font-size: 25px;
+  color: var(--primaryColor);
+}
+.main .mainContent .body .analysisDiv .card .cartTitle span {
+  flex: 1;
+}
+.main .mainContent .body .analysisDiv .card .cartTitle h1 {
+  font-family: "Montserrat", sans-serif;
+  font-weight: bolder;
+  color: var(--primaryColor);
+}
+.main .mainContent .body .analysisDiv .card .cardBody h2 {
+  font-family: "Montserrat", sans-serif;
+  font-weight: bold;
+  font-size: 26px;
+  padding: 5px 0;
+  transition: none;
+}
+.main .mainContent .body .analysisDiv .card .cardBody h2 .percentage {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--hoverColor);
+}
+.main .mainContent .body .analysisDiv .card .cardBody h2 .percentage .icon {
+  margin-left: 10px;
+}
+.main .mainContent .body .analysisDiv .card small {
+  color: var(--greyColor);
+}
+.main .mainContent .body .analysisDiv .card .negativeNumber {
+  color: rgb(255, 145, 0) !important;
+}
+.main .mainContent .body .analysisDiv .active {
+  background: var(--primaryColor);
+  color: var(--whiteColor);
+}
+.main .mainContent .body .analysisDiv .active small {
+  color: var(--whiteColor);
+}
+.main .mainContent .body .analysisDiv .active .percentage {
+  color: var(--bgColor) !important;
+}
+.main .mainContent .body .analysisDiv .active h1 {
+  color: var(--whiteColor) !important;
+}
+.main .mainContent .body .analysisDiv .active .icon {
+  color: var(--whiteColor) !important;
+}
+.main .mainContent .body .analysisDiv .active .negativeNumber {
+  color: rgb(255, 145, 0) !important;
+}
+.main .mainContent .body .graphDiv_foodDiv_deliveryBoyDiv {
+  margin-top: 1rem;
+  grid-template-columns: 2fr 1fr;
+}
+.main .mainContent .body .graphDiv_foodDiv_deliveryBoyDiv .graphDiv {
+  padding: 1rem;
+  border-radius: 0.5rem;
+  background: var(--whiteColor);
+  height: -webkit-max-content;
+  height: -moz-max-content;
+  height: max-content;
+}
+.main .mainContent .body .graphDiv_foodDiv_deliveryBoyDiv .graphDiv .intro {
+  width: 100%;
+  justify-content: space-between;
+  padding: 1rem 5px;
+}
+.main .mainContent .body .graphDiv_foodDiv_deliveryBoyDiv .graphDiv .intro #select {
+  border: 1px solid var(--primaryColor);
+  padding: 5px;
+  background: var(--whiteColor);
+  border-radius: 5px;
+}
+.main .mainContent .body .graphDiv_foodDiv_deliveryBoyDiv .graphDiv .intro #select:focus {
+  outline: none;
+}
+.main .mainContent .body .graphDiv_foodDiv_deliveryBoyDiv .graphDiv #line {
+  padding: 1.5rem 0;
+}
+.main .mainContent .body .graphDiv_foodDiv_deliveryBoyDiv .foodDiv_deliveryBoyDiv {
+  gap: 20px;
+}
+.main .mainContent .body .graphDiv_foodDiv_deliveryBoyDiv .foodDiv_deliveryBoyDiv .foodDiv {
+  background: var(--whiteColor);
+  height: -webkit-max-content;
+  height: -moz-max-content;
+  height: max-content;
+  padding: 1rem;
+  border-radius: 0.5rem;
+}
+.main .mainContent .body .graphDiv_foodDiv_deliveryBoyDiv .foodDiv_deliveryBoyDiv .foodDiv .foodItem {
+  padding: 5px;
+  border-radius: 10px;
+  justify-content: flex-start;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+.main .mainContent .body .graphDiv_foodDiv_deliveryBoyDiv .foodDiv_deliveryBoyDiv .foodDiv .foodItem:hover {
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.418);
+}
+.main .mainContent .body .graphDiv_foodDiv_deliveryBoyDiv .foodDiv_deliveryBoyDiv .foodDiv .foodItem img {
+  width: 20%;
+  height: auto;
+  margin-right: 10px;
+}
+.main .mainContent .body .graphDiv_foodDiv_deliveryBoyDiv .foodDiv_deliveryBoyDiv .foodDiv .foodItem .imgText .imageName {
+  display: block;
+  font-weight: 400;
+}
+.main .mainContent .body .graphDiv_foodDiv_deliveryBoyDiv .foodDiv_deliveryBoyDiv .foodDiv .foodItem .imgText small {
+  color: var(--greyColor);
+}
+.main .mainContent .body .graphDiv_foodDiv_deliveryBoyDiv .foodDiv_deliveryBoyDiv .deliveryBoyDiv {
+  background: var(--whiteColor);
+  height: -webkit-max-content;
+  height: -moz-max-content;
+  height: max-content;
+  padding: 1rem;
+  border-radius: 0.5rem;
+}
+.main .mainContent .body .graphDiv_foodDiv_deliveryBoyDiv .foodDiv_deliveryBoyDiv .deliveryBoyDiv .boysDiv {
+  justify-content: flex-start;
+}
+.main .mainContent .body .graphDiv_foodDiv_deliveryBoyDiv .foodDiv_deliveryBoyDiv .deliveryBoyDiv .boysDiv img {
+  width: 15%;
+  border-radius: 50%;
+  margin: 0 5px;
+  cursor: pointer;
+}
+
+.addBtn {
+  background: var(--primaryColor);
+  height: -webkit-max-content;
+  height: -moz-max-content;
+  height: max-content;
+  width: -webkit-max-content;
+  width: -moz-max-content;
+  width: max-content;
+  padding: 10px 15px;
+  border-radius: 10px;
+}
+.addBtn:hover {
+  background: var(--hoverColor);
+}
+.addBtn a {
+  color: var(--whiteColor);
+}
+
+.mainItems {
+  background: var(--mainItemBGColor);
+  padding: 1rem;
+  border-radius: 1rem;
+}
+.mainItems table {
+  width: 90%;
+  margin: auto;
+  border-collapse: collapse;
+}
+.mainItems table .tableHeader {
+  width: 100%;
+  background: var(--greyColor);
+  padding: 20px;
+}
+.mainItems table .tableHeader th {
+  padding: 10px;
+}
+.mainItems table .tableHeader th:first-child {
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+}
+.mainItems table .tableHeader th:last-child {
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+.mainItems table .tableData {
+  text-align: center;
+  width: 100%;
+  margin: auto;
+}
+.mainItems table .tableData:hover {
+  background: var(--tdHoverColor);
+}
+.mainItems table .tableData .editIcon,
+.mainItems table .tableData .comfirmIcon {
+  background: var(--primaryColor);
+  color: var(--bgColor);
+  padding: 5px 10px;
+  border-radius: 3px;
+}
+.mainItems table .tableData .editIcon:hover,
+.mainItems table .tableData .comfirmIcon:hover {
+  background: var(--hoverColor);
+}
+.mainItems table .tableData .deleteIcon {
+  background: red;
+  color: var(--bgColor);
+  padding: 5px 10px;
+  border-radius: 3px;
+}
+.mainItems table .tableData .deleteIcon:hover {
+  background: rgb(146, 17, 17);
+}
+.mainItems table .tableData .detailsIcon {
+  background: rgb(94, 121, 194);
+  color: var(--bgColor);
+  padding: 5px 10px;
+  border-radius: 3px;
+}
+.mainItems table .tableData .detailsIcon:hover {
+  background: rgb(63, 78, 119);
+}
+.mainItems table .tableData td {
+  padding: 10px;
+}
+.mainItems table .tableData td:first-child {
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+  font-weight: 600;
+  color: var(--primaryColor);
+}
+.mainItems table .tableData td:last-child {
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+.mainItems table .active {
+  background: var(--tdActiveColor);
+}
+
+.settingsContainer {
+  background: var(--mainItemBGColor);
+  padding: 2rem 3rem;
+  border-radius: 1rem;
+  justify-content: space-around;
+}
+.settingsContainer .row {
+  margin: 0.8rem 0;
+  display: grid;
+}
+.settingsContainer .row label {
+  font-size: 18px;
+  font-weight: 500;
+  padding-bottom: 10px;
+}
+.settingsContainer .row label small {
+  margin-left: 1rem;
+  color: var(--greyColor);
+}
+.settingsContainer .row input, .settingsContainer .row select {
+  max-width: 400px;
+  padding: 10px 25px;
+  border-radius: 3rem;
+  border: none;
+  background: var(--tdActiveColor);
+}
+.settingsContainer .row input:focus, .settingsContainer .row select:focus {
+  outline: none;
+}
+.settingsContainer .row .colors {
+  display: flex;
+}
+.settingsContainer .row .colors .green, .settingsContainer .row .colors .blue, .settingsContainer .row .colors .red, .settingsContainer .row .colors .black {
+  height: 30px;
+  width: 30px;
+  border-radius: 50%;
+  margin: 0 5px;
+  cursor: pointer;
+}
+.settingsContainer .row .colors .green {
+  background: var(--primaryColor);
+}
+.settingsContainer .row .colors .red {
+  background: red;
+}
+.settingsContainer .row .colors .blue {
+  background: rgb(0, 26, 255);
+}
+.settingsContainer .row .colors .black {
+  background: rgb(30, 24, 53);
+}
+.settingsContainer .pictureDiv h1 {
+  color: var(--primaryColor);
+}
+.settingsContainer .pictureDiv .imgDiv {
+  position: relative;
+  height: 300px;
+  width: 300px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin: 1rem auto 2rem;
+  border: 10px solid var(--tdHoverColor);
+}
+.settingsContainer .pictureDiv .imgDiv:hover #imgBtn {
+  display: block;
+}
+.settingsContainer .pictureDiv .imgDiv img {
+  height: 100%;
+  width: 100%;
+  -o-object-fit: cover;
+     object-fit: cover;
+}
+.settingsContainer .pictureDiv .imgDiv #file {
+  display: none;
+}
+.settingsContainer .pictureDiv .imgDiv #imgBtn {
+  position: absolute;
+  width: 100%;
+  background: var(--primaryColor);
+  text-align: center;
+  padding: 0.7rem 0.7rem 0.8rem;
+  bottom: 0px;
+  left: 0;
+  color: var(--secondaryColor);
+  cursor: pointer;
+  font-size: 15px;
+  display: none;
+  transition: display 0.5s ease;
+}
+
+.nullValueContainer {
+  background: var(--mainItemBGColor);
+  height: 600px;
+  padding: 2rem 3rem;
+  border-radius: 1rem;
+  display: grid;
+  flex-direction: column;
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  justify-content: center;
+}
+.nullValueContainer .h1Title {
+  text-align: center;
+  font-size: 3.5rem;
+  color: var(--tdHoverColor);
+}
+.nullValueContainer button {
+  display: block;
+  margin: auto;
+  padding: 1rem 1.5rem;
+  border-radius: 10px;
+  background-color: var(--primaryColor);
+  height: -webkit-max-content;
+  height: -moz-max-content;
+  height: max-content;
+  width: -webkit-max-content;
+  width: -moz-max-content;
+  width: max-content;
+  color: var(--whiteColor);
+  font-size: 20px;
+  cursor: pointer;
+  border: none;
+  outline: none;
+}
+.nullValueContainer button:hover {
+  background: var(--hoverColor);
+}
+
+@media screen and (min-width: 960px) {
+  .main .sideMenu .menuList .list {
+    padding: 10px 2rem 10px;
+  }
+  .main .sideMenu .menuList .list .icon {
+    font-size: 20px;
+  }
+  .main .sideMenu .menuList .list .listName {
+    font-size: 1rem;
+  }
+}
+::-moz-selection {
+  background: var(--hoverColor);
+  color: var(--whiteColor);
+}
+::selection {
+  background: var(--hoverColor);
+  color: var(--whiteColor);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  background: var(--tdHoverColor);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--hoverColor);
+  border-radius: 1rem;
+}/*# sourceMappingURL=main.css.map */

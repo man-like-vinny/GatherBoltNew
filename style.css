@@ -1,0 +1,133 @@
+body {
+  display: grid;
+  justify-content: center;
+  align-items: center;
+  background-color: #b4a9a9 !important;
+  background-image: linear-gradient(to top, #dfc970 0%, #5673bcd5 100%) !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
+  'Helvetica Neue', 'Ubuntu', sans-serif;
+  height: 100vh;
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.banner {
+  background: hsl(0, 0%, 100%); /* Example background color, adjust as needed */
+  width: 33%;
+  height: 30%;
+  border-radius: 6px;
+  margin: auto;
+  margin-top: 150px;
+  margin-bottom: 235px;
+  transform: translateY(-50%);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Stronger shadow with 16px blur */
+}
+
+@media (max-width: 1000px) {
+
+  body{
+    height: auto !important;
+  }
+
+  .banner {
+    width: 93% !important; /* Set maximum width to 90% for small screens */
+    height: min-content; /* Adjust the height as needed */
+    margin-top: 250px !important;
+}
+
+
+  h1{
+    font-size: 50px !important;
+    margin-left: 30px;
+    align-items: center;
+    margin: auto;
+  }
+
+  .text {
+    font-size: 12px !important;
+  }
+}
+
+.center-container {
+  text-align: center; /* Center the content horizontally */
+}
+
+h1 {
+  color: white;
+  font-size: 100px;
+  margin-top: 50px;
+}
+
+/* h1 {
+  color: white;
+  font-size: 100px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%); */
+
+
+
+.product {
+  display: flex;
+}
+.description {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.text {
+  font-style: normal;
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 20px;
+  letter-spacing: -0.154px;
+  color: #242d60;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 100%; /* Take up full width of the banner */
+  height: 100%; /* Take up full height of the banner */
+  overflow: auto; /* Enable scrolling if content exceeds the container */
+}
+
+img {
+  border-radius: 6px;
+  margin: 10px;
+  width: 54px;
+  height: 57px;
+}
+h3,
+h5 {
+  font-style: normal;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: -0.154px;
+  color: #242d60;
+  margin: 0;
+}
+h5 {
+  opacity: 0.5;
+}
+button {
+  height: 36px;
+  background: #556cd6;
+  color: white;
+  width: 100%;
+  font-size: 14px;
+  border: 0;
+  font-weight: 500;
+  cursor: pointer;
+  letter-spacing: 0.6;
+  border-radius: 0 0 6px 6px;
+  transition: all 0.2s ease;
+  box-shadow: 0px 4px 5.5px 0px rgba(0, 0, 0, 0.07);
+}
+button:hover {
+  opacity: 0.8;
+}

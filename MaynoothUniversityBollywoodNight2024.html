@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eventifyed</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="icon" href="images/companylogo2-removebg.ico" type="image/x-icon" />
+    <link
+      rel="stylesheet"
+      href="https://use.fontawesome.com/releases/v5.14.0/css/all.css"
+      integrity="sha384-HzLeBuhoNPvSl5KYnjx0BT+WB0QEEqLprO+NBkkk5gbc67FTaL7XIGa2w1L0Xbgc"
+      crossorigin="anonymous"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Kumbh+Sans:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="navbar__container">
+        <!-- <a href="/" id="navbar__logo"><img id="company_logo" src="images/companylogo2.png"></a> -->
+        <a href="/" id="navbar__logo">Eventifyed</a>
+        <div class="navbar__toggle" id="mobile-menu">
+          <span class="bar"></span> <span class="bar"></span>
+          <span class="bar"></span>
+        </div>
+        <ul class="navbar__menu">
+          <li class="navbar__item">
+            <a href="/" class="navbar__links">Home</a>
+          </li>
+          <li class="navbar__item">
+            <a href="/events.html" class="navbar__links">Events</a>
+          </li>
+          <li class="navbar__item">
+            <a href="/login" class="navbar__links">Login</a>
+          </li>
+          <header>
+            <a class="iconCart"><img src="checkoutcart/icon.png"><div class="totalQuantity">0</div></a>
+          </header>
+        </ul>
+      </div>
+    </nav>
+    <!-- Services Section -->
+    <div class="services">
+      <div class="services__container">
+        <div class="listEvents">
+          <div class="item">
+            <div class="item-bg">
+              <div class="description">
+                <div class="ticketSection"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- <div class="services__card">
+          <h2>Mangala School of Carnatic Music</h2>
+          <p>Arrengatam Ganamela</p>
+          <button class="buyticket" ><a href="/events.html">Buy Tickets</a></button>
+        </div> -->
+        <!-- <div class="services__card">
+          <h2>Mangala School of Carnatic Music</h2>
+          <p>Arrengatam Ganamela</p>
+          <button class="buyticket"><a href="/events.html">Buy Tickets</a></button>
+        </div> -->
+      </div>
+    </div>
+
+    <div class="cart">
+        <h2>
+            CART
+        </h2>
+        <div class="listCart">
+            <div class="item">
+                <img src="images/1.webp">
+                <div class="content">
+                    <div class="name">CoPilot / Black / Automatic</div>
+                    <div class="price">$550 / 1 product</div>
+                </div>
+                <div class="quantity">
+                    <button>-</button>
+                    <span class="value">3</span>
+                    <button>+</button>
+                    <div class="clear-cart-button">
+                      <a><img id="returntocartlogo" src="images/recyclebin.png"></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="promotions"> 
+          <div class="promotionsHeader">Add Promotional Code</div>
+          <form class = "promotionCheckout" id="promotionForm">
+            <input type="text" id="name" placeholder="Enter your code" required>
+            <button type="submit" class="sendbutton" >Apply</button>
+          </form>
+          <div class="promotionTag">
+            <div class="promotionTagLogo">🏷️</div>
+            <div class="promotionTagName">Example</div>
+            <div class="promotionTagCancel">X</div>
+          </div>
+          <div class="promotionStatus">Status..</div>
+        </div>
+        <div class="close">
+          X
+        </div>
+        <div class="buttons">
+            <div class="checkout">
+                <a>CHECKOUT</a>
+            </div>
+        </div>
+    </div>  
+  <script src="event.js"></script>
+  <script>
+    var currentFileName = "MU Bollywood Night";
+  </script>
+  <script>
+    if (window.location.protocol == "http:") {
+      window.location.href = window.location.href.replace("http:", "https:");
+    }
+  </script>
+  </body>
+</html>
