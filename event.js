@@ -123,6 +123,7 @@ fetch('/getPromo')
 
 let listCart = [];
 
+
 checkoutButton.addEventListener('click', function(){
     if (listCart.every(element => element === null) || listCart.length === 0) {
         // Don't do anything or show a message to the user indicating that the cart is empty.
@@ -130,6 +131,10 @@ checkoutButton.addEventListener('click', function(){
         //return;
     }
     else{
+        //const eventId = currentEventId;
+        //const seatsToBuy = listCart[eventId]?.selectedSeats || [];
+        //seatMap.confirmSelection()
+        //alert('Checkout successful! Your seats are now unavailable.');
         window.location.href = '/checkout.html';
     }
 })
@@ -145,6 +150,320 @@ checkoutButton.addEventListener('mouseover', function() {
 checkoutButton.addEventListener('mouseout', function() {
     checkoutButton.style.backgroundColor = 'rgb(29, 101, 193)'
 });
+
+//----seat stuff-----
+let seatMap = null;
+
+class SeatMap {
+  constructor(containerId, eventId, quantity) {
+    this.container = document.getElementById(containerId);
+    this.eventId = eventId;
+    this.quantity = quantity;
+    this.selectedSeats = new Set();
+    this.seatData = null;
+    this.ws = null;
+  }
+
+  async init() {
+    await this.fetchSeats();
+    this.render();
+    this.initWebSocket();
+  }
+
+  initWebSocket() {
+    this.ws = new WebSocket(host);
+    this.ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        if (data.action === 'seatUpdated') {
+            this.updateSeatStatus(data.seat);
+        } else if (data.action === 'checkoutCompleted') {
+            this.markSeatsAsUnavailable(data.seats);
+        }
+    };
+  }
+
+  async fetchSeats() {
+    const response = await fetch(`/getSeats/${this.eventId}`);
+    this.seatData = await response.json();
+  }
+
+//   markSeatsAsUnavailable(seats) {
+//     seats.forEach(seatInfo => {
+//         const seatElement = this.container.querySelector(`[data-seat="${seatInfo.seatNumber}"]`);
+//         if (seatElement) {
+//             seatElement.className = 'seat unavailable';
+//         }
+//     });
+//   }
+
+    markSeatsAsUnavailable(seats) {
+        seats.forEach(seatInfo => {
+            this.updateSeatStatus(seatInfo);
+        });
+    }
+
+
+
+  updateSeatStatus(seatInfo) {
+    const seatElement = this.container.querySelector(`[data-seat="${seatInfo.seatNumber}"]`);
+    if (seatElement) {
+      seatElement.className = `seat ${seatInfo.status}`;
+    }
+  }
+
+  updateSelectedSeatsText() {
+    const selectedSeatsText = document.getElementById('selected-seats-text');
+    if (selectedSeatsText) {
+        if (this.selectedSeats.size > 0) {
+            const seatsArray = Array.from(this.selectedSeats);
+            selectedSeatsText.textContent = `Selected Seat${this.selectedSeats.size > 1 ? 's' : ''}: ${seatsArray.join(', ')}`;
+        } else {
+            selectedSeatsText.textContent = 'No seats selected';
+        }
+    }
+  }
+
+  render() {
+    const modal = document.createElement('div');
+    modal.className = 'seat-selection-modal active';
+    
+    const mapContainer = document.createElement('div');
+    mapContainer.className = 'seat-map-container';
+
+    const seatMap = document.createElement('div');
+    seatMap.className = 'seat-map';
+
+    // Add stage area
+    const stage = document.createElement('div');
+    stage.className = 'stage-area';
+    stage.innerHTML = '<div class="stage-label">STAGE</div>';
+    seatMap.appendChild(stage);       
+    
+    // Add selected seats text display
+    const selectedSeatsText = document.createElement('div');
+    selectedSeatsText.id = 'selected-seats-text';
+    selectedSeatsText.className = 'selected-seats-text';
+    selectedSeatsText.textContent = 'No seats selected';
+    seatMap.appendChild(selectedSeatsText);
+
+    // Add legend
+    const legend = document.createElement('div');
+    legend.className = 'seat-legend';
+    legend.innerHTML = `
+      <div class="legend-item">
+        <div class="seat available"></div>
+        <span>Available</span>
+      </div>
+      <div class="legend-item">
+        <div class="seat selected"></div>
+        <span>Selected</span>
+      </div>
+      <div class="legend-item">
+        <div class="seat unavailable"></div>
+        <span>Unavailable</span>
+      </div>
+      <div class="legend-item">
+        <div class="seat in-cart"></div>
+        <span>In Cart</span>
+      </div>
+    `;
+    seatMap.appendChild(legend);
+
+    // Create seat grid
+    const grid = document.createElement('div');
+    grid.className = 'seat-grid';
+
+    const rows = ['A', 'B', 'C'];
+
+    rows.forEach(row => {
+    const rowElement = document.createElement('div');
+    rowElement.className = 'seat-row';
+    
+    const label = document.createElement('div');
+    label.className = 'row-label';
+    label.textContent = row;
+    rowElement.appendChild(label);
+
+    // Determine the number of columns based on row
+    const totalSeats = row === 'A' ? 18 : 18;
+
+    for (let col = 1; col <= totalSeats; col++) {
+        // Skip seats A17 and A18
+        if (row === 'A' && col > 16) continue;
+        
+        const seat = document.createElement('div');
+        const seatNumber = `${row}${col}`;
+        seat.className = 'seat available';
+        seat.dataset.seat = seatNumber;
+        
+        // Check if seat exists in seatData and update its status
+        const seatData = this.seatData?.find(s => s.seatNumber === seatNumber);
+        if (seatData) {
+        seat.className = `seat ${seatData.status}`;
+        }
+
+        // Check if seat is in cart
+        if (listCart && listCart.some(item => item?.selectedSeats?.includes(seatNumber))) {
+        seat.className = 'seat in-cart';
+        }
+
+        seat.addEventListener('click', () => this.handleSeatClick(seat, seatNumber));
+        rowElement.appendChild(seat);
+    }
+    
+    if (row === 'A') {
+        // Add placeholders for missing seats on the right
+        for (let i = 1; i <= 2; i++) {
+        const placeholder = document.createElement('div');
+        placeholder.className = 'seat placeholder';
+        rowElement.appendChild(placeholder);
+        }
+    }
+
+    grid.appendChild(rowElement);
+    });
+    
+
+    seatMap.appendChild(grid);
+
+    // Add action buttons
+    const actions = document.createElement('div');
+    actions.className = 'seat-actions';
+    
+    const confirmBtn = document.createElement('button');
+    confirmBtn.className = 'confirm-seats';
+    confirmBtn.textContent = 'Confirm Selection';
+    confirmBtn.addEventListener('click', () => this.confirmSelection());
+    
+    const cancelBtn = document.createElement('button');
+    cancelBtn.className = 'cancel-selection';
+    cancelBtn.textContent = 'Cancel';
+    cancelBtn.addEventListener('click', () => this.close());
+    
+    actions.appendChild(confirmBtn);
+    actions.appendChild(cancelBtn);
+    seatMap.appendChild(actions);
+
+    mapContainer.appendChild(seatMap);
+    modal.appendChild(mapContainer);
+    this.container.appendChild(modal);
+  }
+
+  handleSeatClick(seatElement, seatNumber) {
+    if (seatElement.classList.contains('unavailable') || 
+        seatElement.classList.contains('in-cart')) {
+      return;
+    }
+
+    if (this.selectedSeats.has(seatNumber)) {
+      seatElement.classList.remove('selected');
+      this.selectedSeats.delete(seatNumber);
+    } else {
+      if (this.selectedSeats.size >= this.quantity) {
+        alert(`You can only select ${this.quantity} seats`);
+        return;
+      }
+      seatElement.classList.add('selected');
+      this.selectedSeats.add(seatNumber);
+    }
+
+    this.updateSelectedSeatsText();
+
+  }
+
+  async confirmSelection() {
+    if (this.selectedSeats.size === 0) {
+        alert('Please select your seats');
+        return;
+    }
+
+    if (this.selectedSeats.size !== this.quantity) {
+        alert(`Please select exactly ${this.quantity} seats`);
+        return;
+    }
+
+    // Update seats in database
+    const seats = Array.from(this.selectedSeats);
+
+    for (const seatNumber of seats) {
+        await fetch('/updateSeat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                eventId: this.eventId,
+                seatNumber,
+                status: 'in_cart'
+            })
+        });
+
+        // Notify other clients about the seat update
+        this.ws.send(JSON.stringify({
+            action: 'seatUpdated',
+            seat: {
+                eventId: this.eventId,
+                seatNumber,
+                status: 'in_cart'
+            }
+        }));
+    }
+
+    // If the product is already in cart, append the new seats
+    if (listCart[this.eventId]) {
+        if (!listCart[this.eventId].selectedSeats) {
+            listCart[this.eventId].selectedSeats = [];
+        }
+        listCart[this.eventId].selectedSeats.push(...seats);
+        //listCart[this.eventId].quantity++;
+        //listCart[this.eventId].ticketQuantity--;
+        addCart(this.eventId, this.ticketType, seats);
+    } else {
+        // Add to cart with selected seats
+        addCart(this.eventId, this.ticketType, seats);
+    }
+
+    this.close();
+    }
+    
+    async completeCheckout() {
+
+        const seats = Array.from(this.selectedSeats);
+
+        for (const seatNumber of seats) {
+            await fetch('/updateSeat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    eventId: this.eventId,
+                    seatNumber,
+                    status: 'unavailable'
+                })
+            });
+        }
+    
+        // Notify all clients that these seats are now unavailable
+        this.ws.send(JSON.stringify({
+            action: 'checkoutCompleted',
+            seats: seats.map(seatNumber => ({
+                eventId: this.eventId,
+                seatNumber,
+                status: 'unavailable'
+            }))
+        }));
+        
+        //delete listCart[this.eventId];
+        alert("Checkout successful! Your seats are now unavailable.");
+    }
+    
+
+  close() {
+    this.container.innerHTML = '';
+    seatMap = null;
+  }
+}
 
 
 //---------websocket---------------
@@ -227,6 +546,7 @@ function addDataToHTML() {
     const ProductPriceOptionOne = selectedProduct.type.find(type => type.ticketType === selectedProduct.option1);
     const ProductPriceOptionTwo = selectedProduct.type.find(type => type.ticketType === selectedProduct.option2);
     const ProductPriceOptionThree = selectedProduct.type.find(type => type.ticketType === selectedProduct.option3);
+    const ProductPriceOptionFour = selectedProduct.type.find(type => type.ticketType === selectedProduct.option4);
     
     //console.log(ProductPriceOptionTwo.ticketQuantity);
     if(ProductPriceOptionOne){
@@ -258,6 +578,17 @@ function addDataToHTML() {
         else
         {
             ProductPriceOptionThree.productAvailability = "Available";
+        }
+    }
+
+    if(ProductPriceOptionFour){
+        if(ProductPriceOptionFour.ticketQuantity == 0)
+        {
+            ProductPriceOptionFour.productAvailability = "Sold Out";
+        }
+        else
+        {
+            ProductPriceOptionFour.productAvailability = "Available";
         }
     }
     //console.log(selectedProduct);
@@ -330,7 +661,7 @@ function addDataToHTML() {
                 <div class="location">${selectedProduct.eventLocation}</div>
                 <div class="ticketHeading">Ticket Options</div>
                 <div class="ticketRules">${selectedProduct.eventRules}</div>
-                <table class ="ticketSection" width="100%" style="position: relative; top: 465px;" border="0" cellspacing="0" cellpadding="4">
+                <table class ="ticketSection" width="100%" style="position: relative; top: 435px;" border="0" cellspacing="0" cellpadding="4">
                     <tbody>
                         <tr style="background-color: #efefef; color:black;">
                             <td width="30%" style="position: relative; left: 19px;"><strong>Ticket Selection</strong></td>
@@ -375,7 +706,20 @@ function addDataToHTML() {
                                 <td>
                                     <button class="addtoCart3" onclick="checkProductId('${selectedProduct.name}', '${selectedProduct.option3}')">Add To Cart</button>
                                 </td>
-                            </tr>` : ''}               
+                            </tr>` : ''}  
+                        ${ProductPriceOptionFour ? `
+                            <tr class="row4" style="color:black; position: relative; top: 20px;">
+                                <td style="position: relative; left: 20px;"><strong>${selectedProduct.option4}</strong></td>
+                                <td><strong>€${ProductPriceOptionFour.price}</strong></td>
+                                <td>
+                                    <strong>
+                                        ${ProductPriceOptionFour.productAvailability}
+                                    </strong>
+                                </td>
+                                <td>
+                                    <button class="addtoCart3" onclick="checkProductId('${selectedProduct.name}', '${selectedProduct.option4}')">Add To Cart</button>
+                                </td>
+                            </tr>` : ''}                 
                     </tbody>
                 </table>
                 <label for="ticketType">Select Ticket Type:</label>
@@ -504,6 +848,14 @@ function checkProductId(productName, productOption){
         console.log("Here is child details: ", productID)
     }
 
+    else if (productOption === selectedProduct.option4) {
+        const optionFour = selectedProduct.type.find(type => type.ticketType === selectedProduct.option4);
+        productID = optionFour ? optionFour.id : null;
+        productTicketType = optionFour ? optionFour.ticketType : null;
+        productQuantity = optionFour ? optionFour.ticketQuantity : null;
+        console.log("Here is child details: ", productID)
+    }
+
     if (productID !== null) {
         //console.log("Product Name: " + selectedProduct.name);
         //console.log("Product TicketType: " + productTicketType);
@@ -512,14 +864,24 @@ function checkProductId(productName, productOption){
         // Call the addCart function with the product ID and selected value
         if(productQuantity == 0){
             window.alert("The " + productTicketType + " ticket is sold out for this event.");
-            
-
         }
         else{
-            addCart(productID, productTicketType, selectedValue);
+            // Check if seat selection is enabled for this event and ticket type
+            const shouldShowSeatSelection = selectedProduct.hasSeatSelection && 
+                selectedProduct.seatSelectionTypes && 
+                selectedProduct.seatSelectionTypes.includes(productTicketType);
+
+            if (!seatMap && shouldShowSeatSelection) {
+                seatMap = new SeatMap('seat-map-container', productID, 1);
+                seatMap.init();
+            } else {
+                // Proceed with normal cart addition for non-seat-selection tickets
+                addCart(productID, productTicketType, selectedValue);
+            }
         }
     }
 }
+
 function adjustPromoHeaderMargin(){
     marginValue += 100; // Increment the margin by 20px each time
     promoHeader.style.marginTop = `${marginValue}px`;
@@ -527,76 +889,57 @@ function adjustPromoHeaderMargin(){
     promoHeader.style.display = 'block';
 }
 
-function addCart(productTypeID, productTicketType) {
+// Modify your existing addCart function to handle selected seats
+function addCart(productTypeID, productTicketType, selectedSeats = []) {
     let productsCopy = JSON.parse(JSON.stringify(products));
 
-    // If this product type is not in the cart
     if (!listCart[productTypeID]) {
         adjustPromoHeaderMargin();
         for (const product of productsCopy) {
             for (const productType of product.type) {
                 if (productType.id == productTypeID) {
-                    //console.log("Match" + productType.id);
                     if (!listCart[productTypeID]) {
                         const productWithoutTicketDesc = { ...product };
-                        delete productWithoutTicketDesc.ticketDescription; //will avoid issues with adding to cart for document.cookie
+                        delete productWithoutTicketDesc.ticketDescription;
                         listCart[productTypeID] = productWithoutTicketDesc;
-                        console.log("product: ",productWithoutTicketDesc);
-                        //listCart[productTypeID] = product;
                         listCart[productTypeID].quantity = 1;
                         listCart[productTypeID].ticketQuantity = productType.ticketQuantity;
                         listCart[productTypeID].staticQuantity = productType.ticketQuantity;
                         listCart[productTypeID].ticktype = productType.ticketType;
                         listCart[productTypeID].variablePrice = productType.price;
-                        console.log("check here: " + listCart[productTypeID].ticktype);
+                        
+                        // Add selected seats if available
+                        if (selectedSeats.length > 0) {
+                            listCart[productTypeID].selectedSeats = selectedSeats;
+                        }
 
                         if (listCart[productTypeID].ticketQuantity > 0) {
                             listCart[productTypeID].ticketQuantity--;
-                            //console.log("updated quantity: " + listCart[productTypeID].ticketQuantity);
-                        } 
-                        
-                        else {
-                            //console.log("Max tickets reached");
+                        } else {
                             console.log(" ");
-
                         }
-
-                    } 
-                    
-                    else {
-                        // If the product type is already in the cart, increase the quantity
+                    } else {
                         if (listCart[productTypeID].ticketQuantity > 0) {
-                            // listCart[productTypeID].quantity++;
-                            // #listCart[productTypeID].ticketQuantity--;
-                            //console.log("updated quantity: " + listCart[productTypeID].ticketQuantity);
                             console.log(" ");
                         } else {
-                            //console.log("Max tickets reached");
                             console.log(" ");
                         }
                     }
                 }
                 else{
-                    //console.log("Not a match" + productType.id);
                     console.log(" ");
                 }
             }
         }
     } else {
-        // If this product type is already in the cart, increase the quantity
         if (listCart[productTypeID].ticketQuantity > 0) {
             listCart[productTypeID].quantity++;
             listCart[productTypeID].ticketQuantity--;
-            //console.log("updated quantity: " + listCart[productTypeID].ticketQuantity);
         } else {
-            //console.log("Max tickets reached");
             console.log(" ");
         }
     }
-
-    //console.log(listCart);
     
-    // console.log(listCart[$idProduct]);
     document.cookie = "listCart=" + JSON.stringify(listCart);
     addCartToHTML();
 }
@@ -621,6 +964,11 @@ function addCartToHTML() {
                 let newCart = document.createElement('div');
                 newCart.classList.add('item');
 
+                let seatInfo = '';
+                if (product.seatSelectionTypes?.includes(product.ticktype) && product.selectedSeats?.length > 0) {
+                    seatInfo = `<div class="seat-info">Seat${product.selectedSeats.length > 1 ? 's' : ''}: ${product.selectedSeats.join(', ')}</div>`;
+                }
+
                 // Find the price for the selected ticket type
                 //let price = getPriceForSelectedType(product, selectedValue);
 
@@ -631,6 +979,7 @@ function addCartToHTML() {
                     <div class="content">
                         <div class="name">${product.name}</div>
                         <div class="price">€${product.variablePrice} / ${product.ticktype}</div>
+                        ${seatInfo}
                     </div>
                     <div class="quantity">
                         <button onclick="changeQuantity(${productTypeID}, '-')">-</button>
@@ -649,51 +998,94 @@ function addCartToHTML() {
 }
 
 function changeQuantity($idProduct, $type) {
+    const product = listCart[$idProduct];
+    const selectedProduct = products.find(p => {
+        return p.type.some(t => t.id === parseInt($idProduct));
+    });
+
+    const ticketType = product.ticktype;
+    const shouldShowSeatSelection = selectedProduct.hasSeatSelection && 
+        selectedProduct.seatSelectionTypes && 
+        selectedProduct.seatSelectionTypes.includes(ticketType);
+
     switch ($type) {
         case '+':
             if (listCart[$idProduct].ticketQuantity > 0) {
-                listCart[$idProduct].quantity++;
-                listCart[$idProduct].ticketQuantity--;
-
-                if (listCart[$idProduct].ticketQuantity === 0) {
-                    //console.log("Max tickets reached");
-                    console.log(" ");
+                if (shouldShowSeatSelection) {
+                    // Show seat selection map for increment
+                    if (!seatMap) {
+                        seatMap = new SeatMap('seat-map-container', $idProduct, 1);
+                        seatMap.init();
+                    }
+                } else {
+                    // Regular increment for non-seat selection tickets
+                    listCart[$idProduct].quantity++;
+                    listCart[$idProduct].ticketQuantity--;
                 }
             } else {
-                //console.log("Max tickets reached");
                 console.log(" ");
             }
             break;
-            case '-':
-                listCart[$idProduct].quantity--;
-                listCart[$idProduct].ticketQuantity++;
-    
-                // if quantity <= 0 then remove product in cart
-                if (listCart[$idProduct].quantity <= 0) {
-                    delete listCart[$idProduct];
-                    //promoTag.style.display = 'none';
-                    promoTag.classList.remove('show');
-                    deleteAllPromo();
-                    setPromoHeaderDefault();
-                    //listCart = [];
-                    
-                    if (listCart.every(element => element === null)) {
-                        promoHeader.style.display = 'none';
-                        promoStatus.style.opacity = 0;
-                    }
-                } 
-                
-                else if (listCart[$idProduct].ticketQuantity === 0) {
-                    //console.log("Max tickets reached");
-                    console.log(" ");
+
+        case '-':
+            if (shouldShowSeatSelection) {
+                // Remove the last selected seat
+                if (listCart[$idProduct].selectedSeats && listCart[$idProduct].selectedSeats.length > 0) {
+                    const lastSeat = listCart[$idProduct].selectedSeats.pop();
+                    fetch('/updateSeat', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            eventId: $idProduct,
+                            seatNumber: lastSeat,
+                            status: 'available'
+                        })
+                    });
                 }
-                break;
-            default:
-                break;
+            }
+            
+            listCart[$idProduct].quantity--;
+            listCart[$idProduct].ticketQuantity++;
+
+            // Remove product from cart if quantity reaches 0
+            if (listCart[$idProduct].quantity <= 0) {
+                // Release all selected seats if any
+                // if (listCart[$idProduct].selectedSeats) {
+                //     listCart[$idProduct].selectedSeats.forEach(seat => {
+                //         fetch('/updateSeat', {
+                //             method: 'POST',
+                //             headers: {
+                //                 'Content-Type': 'application/json'
+                //             },
+                //             body: JSON.stringify({
+                //                 eventId: $idProduct,
+                //                 seatNumber: seat,
+                //                 status: 'available'
+                //             })
+                //         });
+                //     });
+                // }
+                delete listCart[$idProduct];
+                //listCart = [];
+
+                promoTag.classList.remove('show');
+                deleteAllPromo();
+                setPromoHeaderDefault();
+                if (listCart.every(element => element === null)) {
+                    promoHeader.style.display = 'none';
+                    promoStatus.style.opacity = 0;
+                }
+            }
+            break;
+
+        default:
+            break;
     }
-    // save new data in the cookie
-    document.cookie = "listCart=" + encodeURIComponent(JSON.stringify(listCart));
-    // reload the HTML view cart
+
+    // Save cart data and update display
+    document.cookie = "listCart=" + JSON.stringify(listCart);
     addCartToHTML();
 }
 

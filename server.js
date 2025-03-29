@@ -17,7 +17,8 @@ const nodemailer = require('nodemailer');
 
 //const { MailerSend, Sender, Token, Recipient, EmailParams } = require("mailersend");
 
-const port = process.env.PORT || 5000;
+//Below should be 5000 for prod
+const port = process.env.PORT || 5570;
 const app = express();
 app.use(bodyParser.json());
 app.use(express.json());
@@ -108,6 +109,22 @@ mongoose.connect(mongoURI, {
     useUnifiedTopology: true,
 });
 
+const seatSchema = new mongoose.Schema({
+  eventId: String,
+  seatNumber: String,
+  row: String,
+  column: Number,
+  status: {
+    type: String,
+    enum: ['available', 'selected', 'unavailable', 'in_cart'],
+    default: 'available'
+  },
+  price: Number,
+  type: String
+});
+
+const Seat = mongoose.model('Seat', seatSchema, 'seats');
+
 // Define a schema for your data
 const productSchema = new mongoose.Schema({
     name: String,
@@ -122,7 +139,8 @@ const productSchema = new mongoose.Schema({
     ],
     ticketDescription: String,
     image: String,
-    staticImage: String
+    staticImage: String,
+    eventID:String
 });
 
 const promoSchema = new mongoose.Schema({
@@ -140,6 +158,7 @@ const customerSchema = new mongoose.Schema({
   customerEmail: String,
   customerID: String,
   ticketDescription: String,
+  confirmedSeats: String,
   quantity: Number,
   totalPaid: Number,
   feePaid: Number,
@@ -185,13 +204,58 @@ app.get('/getPromo', async (req, res) => {
   }
 });
 
+// Add these new endpoints after your existing endpoints
+app.get('/getSeats/:eventId', async (req, res) => {
+  try {
+      const seats = await Seat.find({ eventId: req.params.eventId });
+      res.json(seats);
+  } catch (error) {
+      console.error('Error fetching seats:', error);
+      res.status(500).json({ error: 'Failed to fetch seats' });
+  }
+});
+
+app.post('/updateSeat', async (req, res) => {
+  try {
+      const { eventId, seatNumber, status } = req.body;
+      const updatedSeat = await Seat.findOneAndUpdate(
+          { eventId, seatNumber },
+          { status },
+          { new: true }
+      );
+      res.json(updatedSeat);
+  } catch (error) {
+      console.error('Error updating seat:', error);
+      res.status(500).json({ error: 'Failed to update seat' });
+  }
+});
+
+// Add new endpoint to verify seats are still available
+app.post('/verifySeats', async (req, res) => {
+  try {
+      const { eventId, seats } = req.body;
+      const seatStatuses = await Seat.find({
+          eventId,
+          seatNumber: { $in: seats }
+      });
+
+      const allAvailable = seatStatuses.every(seat => 
+          seat.status === 'available' || seat.status === 'selected'
+      );
+
+      res.json({ available: allAvailable });
+  } catch (error) {
+      console.error('Error verifying seats:', error);
+      res.status(500).json({ error: 'Failed to verify seats' });
+  }
+});
+
 // WebSocket server
 
 let numberOfClients = 0;
 const clients = new Set();
 
 wss.on('connection', (ws) => {
-  // Handle incoming WebSocket messages
   console.log('A client has connected.');
   
   numberOfClients++;
@@ -199,17 +263,15 @@ wss.on('connection', (ws) => {
   broadcastNumberOfClients();
   clients.add(ws);
 
-    // Define a function to send ping messages to clients
+  // Define a function to send ping messages to clients
   function sendPing() {
     ws.ping();
   }
 
   // Set up a ping interval to periodically send ping messages
-  const pingInterval = setInterval(sendPing, 30000); // Send a ping every 30 seconds
+  const pingInterval = setInterval(sendPing, 30000);
 
   ws.on('pong', () => {
-    // This callback is executed when the client responds to a ping with a pong.
-    // You can use this to track that the client is still responsive.
     console.log('Received a pong from the client.');
   });
   
@@ -218,11 +280,7 @@ wss.on('connection', (ws) => {
       const data = JSON.parse(message);
       if (data.action === 'updateCart') {
         const cart = data.cart;
-
-        // Filter out items that are not null
         const validCart = cart.filter(item => item !== null);
-
-        // Prepare an array of update operations
         const updateOperations = validCart.map(item => {
           const { name, ticktype, ticketQuantity } = item;
           console.log(name, ticktype, ticketQuantity);
@@ -234,15 +292,22 @@ wss.on('connection', (ws) => {
           };
         });
 
-        // Execute the update operations
         Product.bulkWrite(updateOperations);
 
-        // Notify all connected clients about the updated cart
         clients.forEach((client) => {
-          // if (client !== ws && client.readyState === WebSocket.OPEN) {
-          //   client.send(JSON.stringify({ action: 'cartUpdated' }));
           if (client.readyState === WebSocketServer.OPEN) {
             client.send(JSON.stringify({ action: 'cartUpdated'}));
+          }
+        });
+      }
+      else if (data.action === 'seatUpdate') {
+        // Broadcast seat update to all connected clients
+        clients.forEach((client) => {
+          if (client.readyState === WebSocketServer.OPEN) {
+            client.send(JSON.stringify({
+              action: 'seatUpdated',
+              seat: data.seat
+            }));
           }
         });
       }
@@ -253,11 +318,9 @@ wss.on('connection', (ws) => {
 
   ws.on('close', () => {
     console.log('A client has disconnected.');
-
-    // Decrement the number of connected clients and notify all clients
     numberOfClients--;
     broadcastNumberOfClients();
-    console.log("Clients connected: " + numberOfClients)
+    console.log("Clients connected: " + numberOfClients);
     clearInterval(pingInterval);
   });
 });
@@ -313,7 +376,7 @@ const calculateOrderAmount = (items) => {
 };
 
 async function process_qr(customerData) {
-  const url = "https://api.qr-code-generator.com/v1/create?access-token=ln8vLYvUZrJR97khtmrQ4drdahi3CEhYYufT0Kzh1zWrU1REj2MniG69-xLonkLU";
+  const url = "https://api.qr-code-generator.com/v1/create?access-token=RUGJzNw2b2JzuKvzq6YM8C71wxezWmz5DCJX5qhwu5C28YAIX75pqqb8pgHPBIv3";
 
   const payload = JSON.stringify({
     "frame_name": "bottom-frame",
@@ -418,6 +481,13 @@ app.post("/create-payment-intent", async (req, res) => {
   // Alternatively, set up a webhook to listen for the payment_intent.succeeded event
   // and attach the PaymentMethod to a new Customer
   const customer = await stripe.customers.create();
+  const ticketDescription = items.map(item => {
+    let description = `${item.description} x ${item.quantity}`;
+    if (Array.isArray(item.selectedSeats) && item.selectedSeats.length > 0) {
+      description += `\n  Seats: ${item.selectedSeats.join(', ')}`;
+    }
+    return description;
+  }).join('\n\n');
 
   // Create a PaymentIntent with the order amount and currency
   const paymentIntent = await stripe.paymentIntents.create({
@@ -425,7 +495,7 @@ app.post("/create-payment-intent", async (req, res) => {
     setup_future_usage: "off_session",
     amount: calculateOrderAmount(items),
     currency: "eur",
-    description: items.map(item => `${item.id} : ${item.description} x ${item.quantity}`).join('\n'),
+    description: ticketDescription,
     // In the latest version of the API, specifying the `automatic_payment_methods` parameter is optional because Stripe enables its functionality by default.
     payment_method_types: ["card"], // Specify the payment method types
     automatic_payment_methods: {
@@ -454,10 +524,19 @@ app.post("/insert-customer-details", async (req, res) => {
       const firstName = customerName.split(" ")[0];
       const totalPaid = calculateOrderAmount(items)/100;
       const feePaid = (items[0].fee/100);
-      const ticketDescription = items.map(item => `${item.description} x ${item.quantity}`).join('\n');
+      //const ticketDescription = items.map(item => `${item.description} x ${item.quantity}`).join('\n');
+      const ticketDescription = items.map(item => {
+        let description = `${item.description} x ${item.quantity}`;
+        if (Array.isArray(item.selectedSeats) && item.selectedSeats.length > 0) {
+          description += `\n  Seats: ${item.selectedSeats.join(', ')}`;
+        }
+        return description;
+      }).join('\n\n');
+      
       const ticketDescriptionWithLineBreaks = ticketDescription.split('\n').join('<br>');
       const bookingFeeRequired = items[0].inclFee;
       const promotionApplied = items[0].promoAmount;
+      const confirmedSeats = items.map(item => `${item.selectedSeats}`).join('\n');
 
       // Create a new customer document
       const customer = new Customer({
@@ -466,6 +545,7 @@ app.post("/insert-customer-details", async (req, res) => {
         customerEmail,
         customerID,
         ticketDescription,
+        confirmedSeats,
         totalPaid,
         feePaid,
         bookingFeeRequired,

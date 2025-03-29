@@ -1,26 +1,363 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Eventifyed</title>
+  <title>Eventifyed | Success</title>
   <link rel="stylesheet" href="style.css">
   <link rel="icon" href="images/companylogo2-removebg.ico" type="image/x-icon" />
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: linear-gradient(135deg, #6B73FF 0%, #000DFF 100%);
+      color: white;
+      overflow-x: hidden;
+      padding: 1rem;
+      box-sizing: border-box;
+    }
+
+    .success-container {
+      width: 100%;
+      max-width: 800px;
+      margin: 1rem auto;
+      text-align: center;
+      position: relative;
+    }
+
+    .success-header {
+      margin-bottom: 1.5rem;
+      position: relative;
+      padding: 0 1rem;
+    }
+
+    .success-header h1 {
+      font-size: clamp(1.8rem, 5vw, 3rem);
+      margin-bottom: 0.5rem;
+      animation: fadeInUp 0.8s ease;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+      line-height: 1.2;
+    }
+
+    .success-header .emoji {
+      font-size: clamp(2.5rem, 8vw, 4rem);
+      margin: 0.5rem 0;
+      animation: bounce 1s infinite;
+      position: relative;
+      display: inline-block;
+    }
+
+    .emoji::after {
+      content: '✨';
+      position: absolute;
+      font-size: clamp(1.5rem, 4vw, 2rem);
+      animation: sparkle 2s infinite;
+      opacity: 0;
+    }
+
+    .success-card {
+      background: rgba(255, 255, 255, 0.95);
+      padding: clamp(1rem, 4vw, 2rem);
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      color: #333;
+      animation: fadeIn 1s ease;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.3s ease;
+      margin: 0 1rem;
+    }
+
+    .success-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .success-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, #6B73FF, #000DFF);
+    }
+
+    .success-message {
+      font-size: clamp(0.9rem, 3vw, 1.1rem);
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+      position: relative;
+    }
+
+    .important-info {
+      background: #f8f9fa;
+      padding: clamp(1rem, 4vw, 1.5rem);
+      border-radius: 12px;
+      margin: 1.5rem 0;
+      text-align: left;
+      position: relative;
+      transition: all 0.3s ease;
+    }
+
+    .important-info:hover {
+      transform: scale(1.02);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .important-info h3 {
+      color: #2d3436;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      font-size: clamp(1.1rem, 3vw, 1.3rem);
+    }
+
+    .important-info h3::before {
+      content: "📌";
+      margin-right: 10px;
+      animation: wiggle 1s ease-in-out infinite;
+      font-size: clamp(1.2rem, 3vw, 1.5rem);
+    }
+
+    .important-info ul {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .important-info li {
+      padding: 8px 0;
+      position: relative;
+      padding-left: 25px;
+      transition: transform 0.2s ease;
+      font-size: clamp(0.9rem, 2.5vw, 1rem);
+      line-height: 1.5;
+    }
+
+    .important-info li:hover {
+      transform: translateX(5px);
+    }
+
+    .important-info li::before {
+      content: '→';
+      position: absolute;
+      left: 0;
+      color: #6B73FF;
+    }
+
+    .contact-info {
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid #eee;
+      position: relative;
+      font-size: clamp(0.9rem, 2.5vw, 1rem);
+    }
+
+    .contact-info::after {
+      content: '📧';
+      position: absolute;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: clamp(1.5rem, 4vw, 2rem);
+      opacity: 0.5;
+    }
+
+    .contact-info a {
+      color: #000DFF;
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      position: relative;
+      word-break: break-word;
+    }
+
+    .contact-info a::after {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 2px;
+      bottom: -2px;
+      left: 0;
+      background-color: #6B73FF;
+      transform: scaleX(0);
+      transition: transform 0.3s ease;
+    }
+
+    .contact-info a:hover::after {
+      transform: scaleX(1);
+    }
+
+    .confetti {
+      position: fixed;
+      width: clamp(5px, 1.5vw, 10px);
+      height: clamp(5px, 1.5vw, 10px);
+      background-color: #6B73FF;
+      animation: confetti-fall 3s linear infinite;
+    }
+
+    @keyframes confetti-fall {
+      0% { transform: translateY(-100vh) rotate(0deg); }
+      100% { transform: translateY(100vh) rotate(360deg); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+    }
+
+    @keyframes sparkle {
+      0% { transform: translate(10px, -10px) scale(0); opacity: 0; }
+      50% { transform: translate(20px, -20px) scale(1); opacity: 1; }
+      100% { transform: translate(30px, -30px) scale(0); opacity: 0; }
+    }
+
+    @keyframes wiggle {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(10deg); }
+      75% { transform: rotate(-10deg); }
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 0.5rem;
+      }
+
+      .success-container {
+        margin: 0.5rem auto;
+      }
+
+      .success-card {
+        margin: 0 0.5rem;
+        padding: 1rem;
+      }
+
+      .important-info {
+        padding: 1rem;
+      }
+
+      .contact-info {
+        margin-top: 1rem;
+        padding-top: 1rem;
+      }
+
+      .contact-info::after {
+        display: none;
+      }
+
+      .important-info li {
+        padding-left: 20px;
+      }
+
+      .confetti {
+        width: 5px;
+        height: 5px;
+      }
+    }
+
+    @media (max-height: 600px) {
+      body {
+        min-height: auto;
+        padding-bottom: 2rem;
+      }
+
+      .success-header {
+        margin-bottom: 1rem;
+      }
+
+      .success-card {
+        margin-bottom: 1rem;
+      }
+    }
+
+    @media (hover: none) {
+      .success-card:hover,
+      .important-info:hover,
+      .important-info li:hover {
+        transform: none;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .emoji,
+      .confetti,
+      .important-info h3::before {
+        animation: none;
+      }
+
+      .success-card,
+      .success-header h1 {
+        animation: none;
+      }
+    }
+  </style>
 </head>
 <body>
-  <div class="center-container">
-    <h1> You've been Eventifyed!<span class="rocket">&#x1F680;</span</h1>
-  </div>
-  <div class="banner">
-    <div class="text">
-      Thank you for your purchase! Your tickets will be dispatched to you via email shortly. Kindly present the QR Code to the event organiser/ticket office on the day of the event, either through your mobile device or a printed copy. In case you do not receive the email with the QR code, please remember to check your spam/junk folder. For any inquiries, feel free to reach out to us via email at
-        <a href="mailto:admin@eventifyed.com">team@eventifyed.com</a>
+  <div class="success-container">
+    <div class="success-header">
+      <h1>You've been Eventifyed!</h1>
+      <div class="emoji">🎉</div>
+    </div>
+    
+    <div class="success-card">
+      <div class="success-message">
+        Thank you for your purchase! Your event experience begins here.
+      </div>
+
+      <div class="important-info">
+        <h3>Next Steps</h3>
+        <ul>
+          <li>Your tickets will be sent to your email shortly</li>
+          <li>Check your spam/junk folder if you don't see the email</li>
+          <li>Your email will include a QR code - keep it safe!</li>
+          <li>Present the QR code (digital or printed) at the event entrance</li>
+        </ul>
+      </div>
+
+      <div class="contact-info">
+        <p>Need assistance? We're here to help!</p>
+        <p>Contact us at <a href="mailto:team@eventifyed.com">team@eventifyed.com</a></p>
+      </div>
     </div>
   </div>
-<script>
+
+  <script>
+    function createConfetti() {
+      const colors = ['#6B73FF', '#000DFF', '#FFD700', '#FF69B4'];
+      const confetti = document.createElement('div');
+      confetti.className = 'confetti';
+      confetti.style.left = Math.random() * 100 + 'vw';
+      confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+      confetti.style.opacity = Math.random();
+      document.body.appendChild(confetti);
+
+      confetti.addEventListener('animationend', () => {
+        confetti.remove();
+      });
+    }
+
+    // Reduce confetti on mobile to improve performance
+    const isMobile = window.matchMedia('(max-width: 768px)').matches;
+    setInterval(createConfetti, isMobile ? 500 : 300);
+
     if (window.location.protocol == "http:") {
       window.location.href = window.location.href.replace("http:", "https:");
     }
-</script>
+  </script>
 </body>
 </html>

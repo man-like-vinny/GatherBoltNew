@@ -4,14 +4,36 @@ let returntoCart = document.querySelector('#returntocartlogo');
 const spinnerOverlay = document.getElementById('spinner-overlay');
 var host = location.origin.replace(/^http/, 'ws')
 
+// function checkCart() {
+//     var cookieValue = document.cookie
+//         .split('; ')
+//         .find(row => row.startsWith('listCart='));
+//     if (cookieValue) {
+//         listCart = JSON.parse(cookieValue.split('=')[1]);
+//     }
+// }
+
+// Add this near the top of checkout.js
 function checkCart() {
-    var cookieValue = document.cookie
-        .split('; ')
-        .find(row => row.startsWith('listCart='));
-    if (cookieValue) {
-        listCart = JSON.parse(cookieValue.split('=')[1]);
-    }
+  var cookieValue = document.cookie
+      .split('; ')
+      .find(row => row.startsWith('listCart='));
+  
+  if (cookieValue) {
+      try {
+          // Parse the cookie value and handle sparse array
+          let parsedCart = JSON.parse(cookieValue.split('=')[1]);
+          // Convert sparse array to dense array by filtering out null/empty values
+          listCart = parsedCart.filter(item => item !== null && item !== undefined);
+          console.log("Number of cart items:", listCart.length);
+          console.log("Cart contents:", listCart);
+      } catch (e) {
+          console.error("Error parsing cart:", e);
+          listCart = [];
+      }
+  }
 }
+
 
 checkCart();
 
@@ -38,21 +60,30 @@ function addCartToHTML() {
     let discountAmount = 0;
 
     // if there are products in the Cart
-    if (listCart) {
+    if (listCart && listCart.length > 0) {
         listCart.forEach(product => {
             if (product) {
                 let newCart = document.createElement('div');
                 newCart.classList.add('item');
+                // Generate seat info if seats are selected
+                let seatInfo = '';
+                if (product.seatSelectionTypes?.includes(product.ticktype) && product.selectedSeats?.length > 0) {
+                    seatInfo = `<div class="seat-info">Seat${product.selectedSeats.length > 1 ? 's' : ''}: ${product.selectedSeats.join(', ')}</div>`;
+                }
+
                 newCart.innerHTML =
                     `<img src="${product.staticImage}">
                     <div class="info">
                         <div class="name">${product.name}</div>
                         <div class="price">Selected Ticket: ${product.ticktype}</div>
+                        ${seatInfo}
                     </div>
                     <div class="quantity">x${product.quantity}</div>
                     <div class="returnPrice">€${product.variablePrice * product.quantity}</div>`;
+
                 listCartHTML.appendChild(newCart);
                 totalQuantity = totalQuantity + product.quantity;
+
                 fee = (0.01845 * (product.variablePrice * product.quantity) + 0.3075) * 100;
                 promoAmount = product.promotionApplied;
                 beforeFeePrice = completePrice = Math.round(totalPrice + (product.variablePrice * product.quantity * 100))

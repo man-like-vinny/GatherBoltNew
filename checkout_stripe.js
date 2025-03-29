@@ -18,7 +18,8 @@ const itemsForStripe = validItems.map(product => {
     quantity: product.quantity,
     description: product.ticktype,
     inclFee: product.checkBooking,
-    promoAmount: product.promotionApplied
+    promoAmount: product.promotionApplied,
+    selectedSeats: product.selectedSeats
   };
 });
 
