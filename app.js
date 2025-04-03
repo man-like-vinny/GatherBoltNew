@@ -375,7 +375,7 @@ checkCart();
 function navigateProduct(filename) {
     //console.log(filename);
     //window.location.href = "SangeethaArangu.html";
-    window.location.href = filename + ".html";
+    window.location.href = filename;
 }
 fetch('/getProducts')   
 .then(response => response.json())

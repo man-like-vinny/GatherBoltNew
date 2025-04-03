@@ -128,60 +128,243 @@ function addCartToHTML() {
     //updateCartOnServer(listCart);
 }
 
-returntoCart.addEventListener('click', function() {
-    // Perform a fetch to get updated product data
+// returntoCart.addEventListener('click', function() {
+//     // Perform a fetch to get updated product data
 
-    spinnerOverlay.style.display = 'flex';
+//     spinnerOverlay.style.display = 'flex';
     
-    fetch('/getProducts')
-    .then(response => response.json())
-    .then(updatedData => {
-        const validCart = listCart.filter(item => item !== null);
+//     fetch('/getProducts')
+//     .then(response => response.json())
+//     .then(updatedData => {
+//         const validCart = listCart.filter(item => item !== null);
 
-        // Update item.ticketQuantity values with the latest data
-        validCart.forEach(item => {
-            // Find the product with the matching name
-            const matchingProduct = updatedData.find(product => product.name === item.name);
+//         // Update item.ticketQuantity values with the latest data
+//         validCart.forEach(item => {
+//             // Find the product with the matching name
+//             const matchingProduct = updatedData.find(product => product.name === item.name);
 
-            if (matchingProduct) {
-                // Find the corresponding ticketType
-                const matchingTicket = matchingProduct.type.find(ticket => ticket.ticketType === item.ticktype);
-                //console.log(matchingTicket);
-                if (matchingTicket) {
-                    // Update item.ticketQuantity with the value from the matching ticket
-                    item.ticketQuantity = matchingTicket.ticketQuantity;
-                    //console.log(matchingTicket.ticketQuantity);
-                }
-            }
-        });
+//             if (matchingProduct) {
+//                 // Find the corresponding ticketType
+//                 const matchingTicket = matchingProduct.type.find(ticket => ticket.ticketType === item.ticktype);
+//                 //console.log(matchingTicket);
+//                 if (matchingTicket) {
+//                     // Update item.ticketQuantity with the value from the matching ticket
+//                     item.ticketQuantity = matchingTicket.ticketQuantity;
+//                     //console.log(matchingTicket.ticketQuantity);
+//                 }
+//             }
+//         });
 
-        // Now that item.ticketQuantity values are updated, you can perform calculations
-        validCart.forEach(item => {
-            item.ticketQuantity = item.ticketQuantity + item.quantity;
-        });
+//         // Now that item.ticketQuantity values are updated, you can perform calculations
+//         validCart.forEach(item => {
+//             item.ticketQuantity = item.ticketQuantity + item.quantity;
+//         });
 
-        //console.log(validCart);
+//         //console.log(validCart);
 
-        // Clear the cart locally or handle it as needed
+//         // Clear the cart locally or handle it as needed
 
-        // Update the page or perform any additional actions with the updated data
-        // ...
+//         // Update the page or perform any additional actions with the updated data
+//         // ...
 
-        // Call updateCartOnServer after all operations are complete
-        updateCartOnServer(validCart);
-        delayTimer(2000);
-        //spinnerOverlay.style.display = 'none';
-    });
+//         // Call updateCartOnServer after all operations are complete
+//         updateCartOnServer(validCart);
+//         delayTimer(2000);
+//         //spinnerOverlay.style.display = 'none';
+//     });
+
+//     const eventId = "YSM2025"; // Replace with actual event ID
+
+//     fetch(`/getSeats/${eventId}`)
+//     .then(response => response.json())
+//     .then(updatedData => {
+
+//         seat = updatedData;
+
+//         // const seatData = seats?.find(seat => seat.seatNumber === seatNumber);
+//         // if (seatData) {
+//         // seat.className = `seat ${seatData.status}`;
+//         // }
+        
+//         const validCart = listCart.filter(item => item !== null);
+
+//         const seatData = seats?.find(seat => seat.seatNumber === seatNumber);
+//         if (seatData) {
+//         seat.className = `seat ${seatData.status}`;
+//         }
+
+//         validCart.forEach(item => {
+//             // Find the product with the matching name
+//             const matchingProduct = updatedData.find(product => product.name === item.name);
+
+//             if (matchingProduct) {
+//                 // Find the corresponding ticketType
+//                 const matchingTicket = matchingProduct.type.find(ticket => ticket.ticketType === item.ticktype);
+
+//                 if (matchingTicket) {
+
+//                     // Check for matching seats and update their status
+//                     item.selectedSeats.forEach(selectedSeat => {
+//                         const matchingSeat = updatedData.find(seat => 
+//                           seat.seatNumber === selectedSeat.seatNumber &&
+//                           seat.row === selectedSeat.row &&
+//                           seat.status === "available"
+//                         );
+
+//                         if (matchingSeat) {
+//                             matchingSeat.status = "unavailable";
+//                         }
+//                     });
+//                 }
+//             }
+//         });
+
+//         console.log(updatedData); // Check the modified seat status
+//         //updateSeatOnServer(validCart);
+//         //delayTimer(2000);
+//     })
+//     .catch(error => console.error('Error fetching seats:', error));
+
+// });
+
+returntoCart.addEventListener('click', function() {
+  // Perform a fetch to get updated product data
+  spinnerOverlay.style.display = 'flex';
+
+  fetch('/getProducts')
+  .then(response => response.json())
+  .then(updatedData => {
+      const validCart = listCart.filter(item => item !== null);
+
+      // Update item.ticketQuantity values with the latest data
+      validCart.forEach(item => {
+          const matchingProduct = updatedData.find(product => product.name === item.name);
+
+          if (matchingProduct) {
+              const matchingTicket = matchingProduct.type.find(ticket => ticket.ticketType === item.ticktype);
+              if (matchingTicket) {
+                  item.ticketQuantity = matchingTicket.ticketQuantity;
+              }
+          }
+      });
+
+      validCart.forEach(item => {
+          item.ticketQuantity = item.ticketQuantity + item.quantity;
+      });
+
+      // Call updateCartOnServer after all operations are complete
+      //updateCartOnServer(validCart);
+      return new Promise(resolve => setTimeout(() => resolve(updatedData), 2000));
+  })
+  .then(updatedData => {
+      // Now fetch seat data after updating products
+      const eventId = "YSM2025"; // Replace with actual event ID
+
+      return fetch(`/getSeats/${eventId}`)
+      .then(response => response.json())
+      .then(updatedSeatData => {
+          seat = updatedSeatData;
+
+          const validCart = listCart.filter(item => item !== null);
+          const matchingSeats = [];
+
+          validCart.forEach(item => {
+              const matchingProduct = updatedData.find(product => product.name === item.name);
+
+              if (matchingProduct) {
+                  const matchingTicket = matchingProduct.type.find(ticket => ticket.ticketType === item.ticktype);
+
+                  if (matchingTicket) {
+                    console.log("We got here", item.selectedSeats)
+                      item.selectedSeats.forEach(selectedSeat => {
+                          const matchingSeat = seat.find(seat => 
+                            seat.seatNumber === selectedSeat
+                          );
+
+                          if (matchingSeat) {
+                              console.log(matchingSeat)
+                              matchingSeat.status = "available";
+                              matchingSeats.push(matchingSeat.seatNumber); // Store in array
+                          }
+                          else{
+                            console.log("Ticket wasnt found mate")
+                          }
+                      });
+                  }
+              }
+          });
+          console.log("Exists here: ", matchingSeats)
+          updateCartOnServer(validCart, matchingSeats);
+          delayTimer(2000);
+      });
+  })
+  .catch(error => console.error('Error fetching data:', error));
 });
+
 
 function clearCart() {
     listCart = []; // Empty the cart array
     document.cookie = "listCart=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/"; // Remove the cart cookie
 }
 
-//------------------------------------------updating cart logic below------------------------------------------------------------
+//------------------------------------------updating seat logic below------------------------------------------------------------
+function updateSeatOnServer(seatData){
+    // Send a WebSocket message to update the cart on the server
+    // const ws = new WebSocket('wss://www.eventifyed.com:5000'); // Replace with your WebSocket server URL
+    const ws = new WebSocket(host); // Replace with your WebSocket server URL
+  
+    ws.addEventListener('open', () => {
+      //console.log('WebSocket connection is open.');
 
-function updateCartOnServer(cart) {
+      const message = JSON.stringify({
+        action: 'seatUpdate',
+        seats: seatData,
+        requestFetch: true,
+      });
+      ws.send(message);
+    });
+
+    ws.addEventListener('ping', () => {
+        // When a ping message is received from the server, respond with a pong
+        ws.pong();
+        //console.log('Sent a ping to the server.');
+      });
+
+    ws.addEventListener('close', (event) => {
+        if (event.wasClean) {
+          console.log(`WebSocket connection closed cleanly, code: ${event.code}, reason: ${event.reason}`);
+        } else {
+          console.error('WebSocket connection abruptly closed');
+        }
+      });
+      
+    ws.addEventListener('error', (error) => {
+        console.error('WebSocket error:', error);
+    });
+  
+    ws.addEventListener('message', (event) => {
+      const data = JSON.parse(event.data);
+      if(data.action == 'numberOfClients'){
+        const numberOfClients = data.count;
+        console.log(`Number of connected clients: ${numberOfClients}`);
+      }
+      else if (data.action === 'cartUpdated') {
+        // Handle the case where the cart has been updated by another user.
+        // You can update the client's cart and UI here.
+        console.log('Cart updated by another user');
+        //alert('Another user updated the cart');
+
+        if (data.requestReload) {
+            // Reload the page when requested by the server
+            window.location.reload();
+          }
+        //checkCart(); // Update the cart on the client side
+      }
+    });
+}
+
+//------------------------------------------updating cart logic below------------------------------------------------------------
+function updateCartOnServer(cart, seats) {
     // Send a WebSocket message to update the cart on the server
     // const ws = new WebSocket('wss://www.eventifyed.com:5000'); // Replace with your WebSocket server URL
     const ws = new WebSocket(host); // Replace with your WebSocket server URL
@@ -192,6 +375,7 @@ function updateCartOnServer(cart) {
       const message = JSON.stringify({
         action: 'updateCart',
         cart: cart,
+        seats: seats,
         requestFetch: true,
       });
       ws.send(message);
@@ -250,7 +434,7 @@ function startTimer() {
           handleTimerExpiration();
           // All calculations and API calls are complete, redirect to events.html
           //clearCart();
-          delayTimer(2000);
+          //delayTimer(2000);
         } catch (error) {
           console.error('Error during calculations:', error);
         }
@@ -268,32 +452,71 @@ function startTimer() {
     .then(response => response.json())
     .then(updatedData => {
         const validCart = listCart.filter(item => item !== null);
-
+  
         // Update item.ticketQuantity values with the latest data
         validCart.forEach(item => {
-            // Find the product with the matching name
             const matchingProduct = updatedData.find(product => product.name === item.name);
-
+  
             if (matchingProduct) {
-                // Find the corresponding ticketType
                 const matchingTicket = matchingProduct.type.find(ticket => ticket.ticketType === item.ticktype);
-                console.log(matchingTicket);
                 if (matchingTicket) {
-                    // Update item.ticketQuantity with the value from the matching ticket
                     item.ticketQuantity = matchingTicket.ticketQuantity;
-                    console.log(matchingTicket.ticketQuantity);
                 }
             }
         });
-
-        // Now that item.ticketQuantity values are updated, you can perform calculations
+  
         validCart.forEach(item => {
             item.ticketQuantity = item.ticketQuantity + item.quantity;
         });
-
-      updateCartOnServer(validCart);
-    });
-  };
+  
+        // Call updateCartOnServer after all operations are complete
+        //updateCartOnServer(validCart);
+        return new Promise(resolve => setTimeout(() => resolve(updatedData), 2000));
+    })
+    .then(updatedData => {
+        // Now fetch seat data after updating products
+        const eventId = "YSM2025"; // Replace with actual event ID
+  
+        return fetch(`/getSeats/${eventId}`)
+        .then(response => response.json())
+        .then(updatedSeatData => {
+            seat = updatedSeatData;
+  
+            const validCart = listCart.filter(item => item !== null);
+            const matchingSeats = [];
+  
+            validCart.forEach(item => {
+                const matchingProduct = updatedData.find(product => product.name === item.name);
+  
+                if (matchingProduct) {
+                    const matchingTicket = matchingProduct.type.find(ticket => ticket.ticketType === item.ticktype);
+  
+                    if (matchingTicket) {
+                      console.log("We got here", item.selectedSeats)
+                        item.selectedSeats.forEach(selectedSeat => {
+                            const matchingSeat = seat.find(seat => 
+                              seat.seatNumber === selectedSeat
+                            );
+  
+                            if (matchingSeat) {
+                                console.log(matchingSeat)
+                                matchingSeat.status = "available";
+                                matchingSeats.push(matchingSeat.seatNumber); // Store in array
+                            }
+                            else{
+                              console.log("Ticket wasnt found mate")
+                            }
+                        });
+                    }
+                }
+            });
+            console.log("Exists here: ", matchingSeats)
+            updateCartOnServer(validCart, matchingSeats);
+            delayTimer(2000);
+        });
+    })
+    .catch(error => console.error('Error fetching data:', error));
+  }
 
   function delayTimer(delay){
     setTimeout(function() {

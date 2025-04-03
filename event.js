@@ -14,6 +14,10 @@ let container = document.querySelector('.navbar');
 let event_container = document.querySelector('.listProduct');
 let close = document.querySelector('.close');
 
+//food selections
+let chickenMealCount = 0;
+let vegMealCount = 0;
+
 //promotions
 let marginValue = 0; // Initial margin value
 let initialListCartLength = 0; // Initial length of listCart
@@ -121,23 +125,132 @@ fetch('/getPromo')
         promotions = data;
 })
 
+let seats = null;
+const eventId = "YSM2025"; // Replace with actual event ID
+
+fetch(`/getSeats/${eventId}`)  // ✅ Uses path parameter correctly
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        seats = data;
+        console.log(seats); // Check the fetched seat data
+    })
+    .catch(error => console.error('Error fetching seats:', error));
+
+
 let listCart = [];
 
 
-checkoutButton.addEventListener('click', function(){
+// checkoutButton.addEventListener('click', function(){
+//     if (listCart.every(element => element === null) || listCart.length === 0) {
+//         // Don't do anything or show a message to the user indicating that the cart is empty.
+//         window.alert("Cart Empty!")
+//         //return;
+//     }
+//     else{
+//         //const eventId = currentEventId;
+//         //const seatsToBuy = listCart[eventId]?.selectedSeats || [];
+//         //alert('Checkout successful! Your seats are now unavailable.');
+//         window.location.href = '/checkout.html';
+//     }
+// })
+
+// In event.js, modify the checkoutButton event listener:
+
+// Update the checkoutButton event listener:
+// checkoutButton.addEventListener('click', async function(){
+//     if (listCart.every(element => element === null) || listCart.length === 0) {
+//         window.alert("Cart Empty!")
+//         return;
+//     }
+
+//     // Check if any items in cart have seat selections
+//     const itemsWithSeats = listCart.filter(item => item && item.selectedSeats && item.selectedSeats.length > 0);
+    
+//     if (itemsWithSeats.length > 0) {
+//         for (const item of itemsWithSeats) {
+//             const response = await fetch('/verifySeats', {
+//                 method: 'POST',
+//                 headers: {
+//                     'Content-Type': 'application/json'
+//                 },
+//                 body: JSON.stringify({
+//                     eventId: item.id,
+//                     seats: item.selectedSeats
+//                 })
+//             });
+
+//             const result = await response.json();
+            
+//             if (!result.available) {
+//                 window.alert("Some selected seats are no longer available. Please refresh your cart.");
+//                 return;
+//             }
+//         }
+//     }
+
+//     window.location.href = '/checkout.html';
+// });
+
+checkoutButton.addEventListener('click', async function(){
     if (listCart.every(element => element === null) || listCart.length === 0) {
-        // Don't do anything or show a message to the user indicating that the cart is empty.
         window.alert("Cart Empty!")
-        //return;
+        return;
     }
-    else{
-        //const eventId = currentEventId;
-        //const seatsToBuy = listCart[eventId]?.selectedSeats || [];
-        //seatMap.confirmSelection()
-        //alert('Checkout successful! Your seats are now unavailable.');
-        window.location.href = '/checkout.html';
+
+    const itemsWithSeats = listCart.filter(item => item && item.selectedSeats && item.selectedSeats.length > 0);
+    
+    if (itemsWithSeats.length > 0) {
+        for (const item of itemsWithSeats) {
+            // Create a new WebSocket connection
+            const ws = new WebSocket(host);
+            
+            // Wait for the connection to be established
+            await new Promise((resolve) => {
+                ws.onopen = () => resolve();
+            });
+
+            // Update each seat status
+            for (const seatNumber of item.selectedSeats) {
+                // Update seat in database
+                await fetch('/updateSeat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        eventId: item.id,
+                        seatNumber,
+                        status: 'unavailable'
+                    })
+                });
+
+                // Broadcast the update
+                ws.send(JSON.stringify({
+                    action: 'checkoutCompleted',
+                    seats: [{
+                        eventId: item.id,
+                        seatNumber,
+                        status: 'unavailable'
+                    }]
+                }));
+
+                console.log("done with seats apprently")
+            }
+
+            // Close the WebSocket connection
+            ws.close();
+        }
     }
-})
+
+    window.location.href = '/checkout.html';
+});
+
+
 
 checkoutButton.addEventListener('mouseover', function() {
     if (listCart.every(element => element === null) || listCart.length === 0) {
@@ -204,12 +317,25 @@ class SeatMap {
 
 
 
+//   updateSeatStatus(seatInfo) {
+//     const seatElement = this.container.querySelector(`[data-seat="${seatInfo.seatNumber}"]`);
+//     if (seatElement) {
+//       seatElement.className = `seat ${seatInfo.status}`;
+//     }
+//   }
+
   updateSeatStatus(seatInfo) {
     const seatElement = this.container.querySelector(`[data-seat="${seatInfo.seatNumber}"]`);
     if (seatElement) {
-      seatElement.className = `seat ${seatInfo.status}`;
+        seatElement.className = `seat ${seatInfo.status}`;
+        
+        // If the seat becomes unavailable, remove it from selected seats
+        if (seatInfo.status === 'unavailable' && this.selectedSeats.has(seatInfo.seatNumber)) {
+            this.selectedSeats.delete(seatInfo.seatNumber);
+            this.updateSelectedSeatsText();
+        }
     }
-  }
+}
 
   updateSelectedSeatsText() {
     const selectedSeatsText = document.getElementById('selected-seats-text');
@@ -297,7 +423,8 @@ class SeatMap {
         seat.dataset.seat = seatNumber;
         
         // Check if seat exists in seatData and update its status
-        const seatData = this.seatData?.find(s => s.seatNumber === seatNumber);
+        //const seatData = this.seatData?.find(s => s.seatNumber === seatNumber);
+        const seatData = seats?.find(seat => seat.seatNumber === seatNumber);
         if (seatData) {
         seat.className = `seat ${seatData.status}`;
         }
@@ -382,9 +509,41 @@ class SeatMap {
         return;
     }
 
+    const foodSelect = document.getElementById(`food-option-1`);
+    if (!foodSelect || !foodSelect.value) {
+        alert('Please select a food preference');
+        return;
+    }
+
+    const foodSelection = foodSelect.value;  // Get selected food value
+    const foodArray = [];  // Initialize an array if not already created
+
+   // Verify seats are still available
+   const response = await fetch('/verifySeats', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+        eventId: this.eventId,
+        seats: Array.from(this.selectedSeats)
+        })
+    });
+
+    const result = await response.json();
+
+    if (!result.available) {
+        alert("Some selected seats are no longer available. Please choose different seats.");
+        // Refresh the seat map
+        await this.fetchSeats();
+        this.selectedSeats.clear();
+        this.container.innerHTML = '';
+        this.render();
+        return;
+    }
+
     // Update seats in database
     const seats = Array.from(this.selectedSeats);
-
     for (const seatNumber of seats) {
         await fetch('/updateSeat', {
             method: 'POST',
@@ -399,14 +558,14 @@ class SeatMap {
         });
 
         // Notify other clients about the seat update
-        this.ws.send(JSON.stringify({
-            action: 'seatUpdated',
-            seat: {
-                eventId: this.eventId,
-                seatNumber,
-                status: 'in_cart'
-            }
-        }));
+        // this.ws.send(JSON.stringify({
+        //     action: 'seatUpdated',
+        //     seat: {
+        //         eventId: this.eventId,
+        //         seatNumber,
+        //         status: 'in_cart'
+        //     }
+        // }));
     }
 
     // If the product is already in cart, append the new seats
@@ -417,10 +576,14 @@ class SeatMap {
         listCart[this.eventId].selectedSeats.push(...seats);
         //listCart[this.eventId].quantity++;
         //listCart[this.eventId].ticketQuantity--;
-        addCart(this.eventId, this.ticketType, seats);
+        console.log("Intial food selection: ", foodSelection);
+        foodArray.push(foodSelection);  // Add food selection to array
+        addCart(this.eventId, this.ticketType, seats, foodArray);
     } else {
         // Add to cart with selected seats
-        addCart(this.eventId, this.ticketType, seats);
+        console.log("Intial food selection: ", foodSelection);
+        foodArray.push(foodSelection);  // Add food selection to array
+        addCart(this.eventId, this.ticketType, seats, foodArray);
     }
 
     this.close();
@@ -494,30 +657,57 @@ ws.addEventListener('error', (error) => {
   console.error('WebSocket error:', error);
 });
 
-ws.addEventListener('message', (event) => {
+// ws.addEventListener('message', (event) => {
+//     const data = JSON.parse(event.data);
+//     if (data.action === 'numberOfClients') {
+//       // Handle the number of connected clients
+//       const numberOfClients = data.count;
+//       console.log(`Number of connected clients: ${numberOfClients}`);
+//     } else if (data.action === 'cartUpdated') {
+//       // Handle other actions, e.g., cart updates
+//       console.log('Cart updated by another user');
+      
+//       // Check if the server requests a fetch to update the content
+//       if (data.requestFetch) {
+//         // Perform a fetch to update the products data
+//         fetch('/getProducts')
+//           .then(response => response.json())
+//           .then(updatedData => {
+//             // Update the products data with the fetched data
+//             products = updatedData;
+//             // Call the addDataToHTML function to update the page content
+//             //addDataToHTML();
+//           });
+//       }
+//     }
+//   });
+  
+
+  ws.addEventListener('message', (event) => {
     const data = JSON.parse(event.data);
     if (data.action === 'numberOfClients') {
       // Handle the number of connected clients
       const numberOfClients = data.count;
       console.log(`Number of connected clients: ${numberOfClients}`);
-    } else if (data.action === 'cartUpdated') {
-      // Handle other actions, e.g., cart updates
-      console.log('Cart updated by another user');
-      
-      // Check if the server requests a fetch to update the content
-      if (data.requestFetch) {
-        // Perform a fetch to update the products data
-        fetch('/getProducts')
-          .then(response => response.json())
-          .then(updatedData => {
-            // Update the products data with the fetched data
-            products = updatedData;
-            // Call the addDataToHTML function to update the page content
-            //addDataToHTML();
-          });
-      }
+    } else if (data.action === 'seatUpdated' || data.action === 'checkoutCompleted') {
+        if (seatMap) {
+            if (data.action === 'seatUpdated') {
+                seatMap.updateSeatStatus(data.seat);
+            } else {
+                seatMap.markSeatsAsUnavailable(data.seats);
+            }
+        } else {
+            // If seatMap doesn't exist, update the seat display directly
+            data.seats?.forEach(seatInfo => {
+                const seatElement = document.querySelector(`[data-seat="${seatInfo.seatNumber}"]`);
+                if (seatElement) {
+                    seatElement.className = `seat ${seatInfo.status}`;
+                }
+            });
+        }
     }
-  });
+});
+
 
 let selectedTicketType = null;
 
@@ -611,7 +801,7 @@ function addDataToHTML() {
             let backgroundImage = new Image();
             backgroundImage.src = selectedProduct.landscapeimage;
         
-            // Wait for the image to load
+            // Wait for the image to load 
             backgroundImage.onload = function () {
                 // Set the background image after it has loaded
                 backgroundEffect.style.backgroundImage = `url(${selectedProduct.landscapeimage})`;
@@ -661,47 +851,50 @@ function addDataToHTML() {
                 <div class="location">${selectedProduct.eventLocation}</div>
                 <div class="ticketHeading">Ticket Options</div>
                 <div class="ticketRules">${selectedProduct.eventRules}</div>
-                <table class ="ticketSection" width="100%" style="position: relative; top: 435px;" border="0" cellspacing="0" cellpadding="4">
+                <table class="ticketSection" width="100%" style="position: relative; top: 435px;" border="0" cellspacing="0" cellpadding="4">
                     <tbody>
                         <tr style="background-color: #efefef; color:black;">
-                            <td width="30%" style="position: relative; left: 19px;"><strong>Ticket Selection</strong></td>
-                            <td width="15%"><strong>Price</strong></td>
-                            <td width="25%"><strong>Ticket Status</strong></td>
+                            <td class="ticketSelection" width="22%" style="position: relative; left: 19px;"><strong>Ticket Selection</strong></td>
+                            <td class="ticketPrice" width="7%"><strong>Price</strong></td>
+                            <td class="ticketStatus" width="16%"><strong>Ticket Status</strong></td>
+                            <td class="foodOption" width="15%"><strong>Food Option</strong></td>
                             <td width="25%"></td>
                         </tr>
                         <tr style="color:black; position: relative; top: 5px;">
                             <td style="position: relative; left: 20px;"><strong>${selectedProduct.option1}</strong></td>
                             <td><strong>€${ProductPriceOptionOne.price}</strong></td>
                             <td>
-                                <strong>
-                                ${ProductPriceOptionOne.productAvailability}
-                                </strong>
-                                </td>
+                                <strong>${ProductPriceOptionOne.productAvailability}</strong>
+                            </td>
+                            <td>
+                                ${selectedProduct.hasSeatSelection ? `
+                                <select class="food-select" id="food-option-1" onchange="updateFoodSelection(this, '${selectedProduct.option1}')">
+                                    <option value="" selected>Select Food</option>    
+                                    <option value="Chicken">Chicken Biryani</option>
+                                    <option value="Veg">Veg Biryani</option>
+                                </select>
+                                ` : '-'}
+                            </td>
                             <td style="position: relative;">
-                                <button class="addtoCart" onclick="checkProductId('${selectedProduct.name}', '${selectedProduct.option1}')">Add To Cart</button>
+                                <button class="addtoCart3" disabled id="cart-btn-1" onclick="checkProductId('${selectedProduct.name}', '${selectedProduct.option1}', getFoodSelection('food-option-1'))">Add To Cart</button>
                             </td>
                         </tr>
-                        <tr class = "row2" style="color:black; position: relative; top: 10px;">
+                        <tr class="row2" style="color:black; position: relative; top: 10px;">
                             <td style="position: relative; left: 20px;"><strong>${selectedProduct.option2}</strong></td>
                             <td><strong>€${ProductPriceOptionTwo.price}</strong></td>
                             <td>
-                                <strong>
-                                ${ProductPriceOptionTwo.productAvailability}
-                                </strong>
+                                <strong>${ProductPriceOptionTwo.productAvailability}</strong>
                             </td>
                             <td>
-                                <button class="addtoCart2" onclick="checkProductId('${selectedProduct.name}', '${selectedProduct.option2}')">Add To Cart</button>
+                                <button class="addtoCart3" onclick="checkProductId('${selectedProduct.name}', '${selectedProduct.option2}')">Add To Cart</button>
                             </td>
                         </tr>   
-                        <!-- Check if ProductPriceOptionThree exists before rendering the row -->
                         ${ProductPriceOptionThree ? `
                             <tr class="row3" style="color:black; position: relative; top: 15px;">
                                 <td style="position: relative; left: 20px;"><strong>${selectedProduct.option3}</strong></td>
                                 <td><strong>€${ProductPriceOptionThree.price}</strong></td>
                                 <td>
-                                    <strong>
-                                        ${ProductPriceOptionThree.productAvailability}
-                                    </strong>
+                                    <strong>${ProductPriceOptionThree.productAvailability}</strong>
                                 </td>
                                 <td>
                                     <button class="addtoCart3" onclick="checkProductId('${selectedProduct.name}', '${selectedProduct.option3}')">Add To Cart</button>
@@ -712,9 +905,7 @@ function addDataToHTML() {
                                 <td style="position: relative; left: 20px;"><strong>${selectedProduct.option4}</strong></td>
                                 <td><strong>€${ProductPriceOptionFour.price}</strong></td>
                                 <td>
-                                    <strong>
-                                        ${ProductPriceOptionFour.productAvailability}
-                                    </strong>
+                                    <strong>${ProductPriceOptionFour.productAvailability}</strong>
                                 </td>
                                 <td>
                                     <button class="addtoCart3" onclick="checkProductId('${selectedProduct.name}', '${selectedProduct.option4}')">Add To Cart</button>
@@ -815,7 +1006,7 @@ fetch('/getProducts')
     addEventToHTML();
 })
 
-function checkProductId(productName, productOption){
+function checkProductId(productName, productOption, foodSelection){
     const selectedProduct = products.find(product => product.name === productName);
     //console.log(selectedProduct);
     const ticketSelection = document.getElementById("ticketType");
@@ -824,7 +1015,9 @@ function checkProductId(productName, productOption){
 
     let productID = null;
     let productQuantity = null;
-
+    const shouldShowSeatSelection = selectedProduct.hasSeatSelection && 
+    selectedProduct.seatSelectionTypes && 
+    selectedProduct.seatSelectionTypes.includes(productOption);
 
     if (productOption === selectedProduct.option1) {
         const optionOne = selectedProduct.type.find(type => type.ticketType === selectedProduct.option1);
@@ -870,14 +1063,17 @@ function checkProductId(productName, productOption){
             const shouldShowSeatSelection = selectedProduct.hasSeatSelection && 
                 selectedProduct.seatSelectionTypes && 
                 selectedProduct.seatSelectionTypes.includes(productTicketType);
-
-            if (!seatMap && shouldShowSeatSelection) {
-                seatMap = new SeatMap('seat-map-container', productID, 1);
-                seatMap.init();
-            } else {
-                // Proceed with normal cart addition for non-seat-selection tickets
-                addCart(productID, productTicketType, selectedValue);
-            }
+ 
+                if (shouldShowSeatSelection && (!foodSelection)) {
+                    window.alert("Please select a food option");
+                } else if (!seatMap && shouldShowSeatSelection) {
+                    seatMap = new SeatMap('seat-map-container', productID, 1);
+                    seatMap.init();
+                } else {
+                    // Proceed with normal cart addition for non-seat-selection tickets
+                    console.log("Initial FoodSelection: ", foodSelection);
+                    addCart(productID, productTicketType, selectedValue, foodSelection);
+                }
         }
     }
 }
@@ -890,8 +1086,9 @@ function adjustPromoHeaderMargin(){
 }
 
 // Modify your existing addCart function to handle selected seats
-function addCart(productTypeID, productTicketType, selectedSeats = []) {
+function addCart(productTypeID, productTicketType, selectedSeats = [], foodSelection) {
     let productsCopy = JSON.parse(JSON.stringify(products));
+
 
     if (!listCart[productTypeID]) {
         adjustPromoHeaderMargin();
@@ -911,6 +1108,41 @@ function addCart(productTypeID, productTicketType, selectedSeats = []) {
                         // Add selected seats if available
                         if (selectedSeats.length > 0) {
                             listCart[productTypeID].selectedSeats = selectedSeats;
+                            listCart[productTypeID].foodSeatArrayR = [];
+                            console.log("Entered here again:", foodSelection);
+                            // if(foodSelection == "Chicken"){
+                            //     chickenMealCount+=1;
+                            // }
+                            // else {
+                            //     vegMealCount+=1;
+                            // }
+
+                            // listCart[productTypeID].chickenMealCount = chickenMealCount;
+                            // listCart[productTypeID].vegMealCount = vegMealCount;
+
+                            for (let i = 0; i < selectedSeats.length; i++) {
+                                listCart[productTypeID].foodSeatArrayR.push({
+                                    seatNumber: selectedSeats[i],
+                                    food: foodSelection[i] // Assign food selection for each seat
+                                });
+                            }
+                            
+                            
+                            console.log("Selected Seats added: ", listCart[productTypeID].foodSeatArrayR)
+                            
+                            if(Array.isArray(selectedSeats) && selectedSeats.length > 0){
+
+                                // selectedSeats.forEach((seat, index) => {
+                                //     listCart[productTypeID].foodSeatArray.push({
+                                //         seat: seat, // Store the seat
+                                //         food: foodSelection // Match food, fallback to null if no match
+                                //     });
+                                // });
+                            }
+                            console.log("food selection: ", foodSelection);
+                            console.log("food array: ", listCart[productTypeID].foodSeatArray);
+
+                            // console.log(listCart[productTypeID].foodSeatArray)
                         }
 
                         if (listCart[productTypeID].ticketQuantity > 0) {
@@ -965,9 +1197,13 @@ function addCartToHTML() {
                 newCart.classList.add('item');
 
                 let seatInfo = '';
+                let foodSelect = '';
                 if (product.seatSelectionTypes?.includes(product.ticktype) && product.selectedSeats?.length > 0) {
                     seatInfo = `<div class="seat-info">Seat${product.selectedSeats.length > 1 ? 's' : ''}: ${product.selectedSeats.join(', ')}</div>`;
+                    foodSelect = `<div class="seat-info">Meal: ${document.getElementById('food-option-1').value}</div>`;
                 }
+            
+                //const foodSelection = foodSelect.value;
 
                 // Find the price for the selected ticket type
                 //let price = getPriceForSelectedType(product, selectedValue);
@@ -980,6 +1216,7 @@ function addCartToHTML() {
                         <div class="name">${product.name}</div>
                         <div class="price">€${product.variablePrice} / ${product.ticktype}</div>
                         ${seatInfo}
+                        ${foodSelect}
                     </div>
                     <div class="quantity">
                         <button onclick="changeQuantity(${productTypeID}, '-')">-</button>
@@ -1135,5 +1372,21 @@ function deleteAllPromo() {
           // Add promotion information to the product
           delete listCart[productID].promotionApplied;
         }
+    }
+}
+
+function getFoodSelection(selectId) {
+    const select = document.getElementById(selectId);
+    return select ? select.value : null;
+}
+
+function updateFoodSelection(selectElement, ticketType) {
+    const cartButton = selectElement.parentElement.nextElementSibling.querySelector('button');
+    if (!selectElement.value) {
+        cartButton.disabled = true;
+        cartButton.style.opacity = '0.5';
+    } else {
+        cartButton.disabled = false;
+        cartButton.style.opacity = '1';
     }
 }

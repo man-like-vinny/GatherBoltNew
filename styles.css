@@ -489,7 +489,7 @@ video {
       rgba(0, 0, 0, 0) 0%,
       rgba(17, 17, 17, 0.6) 100%
     ),
-    url(product_images/maynoothuniversity_bollywood.jpg);
+    url(product_images/YeShamMastani.jpg);
   background-size: cover;
   background-position: center;
   position: relative;
@@ -501,38 +501,19 @@ video {
   opacity: 0.2;
 }
 
-.services__card:nth-child(2) {
+/*
+.services__card:nth-child(0) {
   background-image: linear-gradient(
       to bottom,
       rgba(0, 0, 0, 0) 0%,
       rgba(17, 17, 17, 0.9) 100%
     ),
-    url(product_images/OorThiruvizha_10_1.jpg);
+    url(product_images/maynoothuniversity_bollywood.jpg);
   background-size: contain;
   background-position: center;
 }
+*/
 
-.services__card:nth-child(3) {
-  background-image: linear-gradient(
-      to bottom,
-      rgba(0, 0, 0, 0) 0%,
-      rgba(17, 17, 17, 0.9) 100%
-    ),
-    url(product_images/maynoothuniversity_holi.jpg);
-  background-size: contain;
-  background-position: center;
-}
-
-.services__card:nth-child(4) {
-  background-image: linear-gradient(
-      to bottom,
-      rgba(0, 0, 0, 0) 0%,
-      rgba(17, 17, 17, 0.9) 100%
-    ),
-    url(product_images/mangalaschool.jpg);
-  background-size: contain;
-  background-position: center;
-}
 
 .services__card h2 {
   position: absolute;
@@ -716,10 +697,6 @@ video {
     margin-left: -10px;
   }
 
-  .listEvents .description .ticketSection td  {
-    width: 15% !important;
-  }
-
   .listEvents .description .ticketSection .row  {
     position: relative !important; 
     top: 10px !important;
@@ -870,6 +847,13 @@ video {
     margin-left: -10px;
   }
 
+  .listEvents .description .ticketSection  {
+    width: 105% !important;
+    margin-top: 130px !important;
+    margin-left: -10px;
+
+  }
+
   .listEvents .description .ticketSection {
     display: flex;
     flex-direction: column;
@@ -880,34 +864,48 @@ video {
   .listEvents .description .ticketSection .row2,
   .listEvents .description .ticketSection .row3,
   .listEvents .description .ticketSection .row4 {
-      position: relative !important;
-      margin-top: -10px !important; /* Ensures spacing instead of using top */
-      display: block;
+    position: static;
+    top: auto;
   }
 
   .listEvents .description .ticketSection td  {
-    width: 15% !important;
+    width: 11% !important;
+  }
+
+  .listEvents .description .ticketSection .ticketSelection  {
+    width: 35% !important;
+  }
+
+  .listEvents .description .ticketSection .ticketPrice  {
+    width: 0% !important;
+  }
+
+  .listEvents .description .ticketSection .ticketStatus  {
+    width: 27% !important;
   }
 
   .listEvents .description .addtoCart{
     z-index: 100;
-    width: 100% !important
+    width: 170% !important;
+    position: absolute !important;
   }
-
-  .listEvents .description .addtoCart{
-    width: 110% !important;
-  }
-
 
   .listEvents .description .addtoCart2 {
     position: absolute !important;
-    width: 25% !important;
+    width: 23% !important;
     margin-top: -7px !important;
-    left: 275px; /* Adjust the value as needed */
-}
+    left: 282px; /* Adjust the value as needed */
+  }
 
   .listEvents .description .addtoCart3{
-    width: 25% !important;
+    width: 23% !important;
+    position: absolute !important;
+    margin-top: -7px !important;
+    left: 280px; /* Adjust the value as needed */
+  }
+
+  .listEvents .description .addtoCart4{
+    width: 23% !important;
   }
 
   /*important*/
@@ -1574,7 +1572,8 @@ color: white;
   position: absolute;
   background-color: rgb(29, 101, 193);
   color: #fff;
-  bottom: -2px;
+  bottom: 5px;
+  gap: 5px;
   width: 150px;
   right: 10px;
   border-radius: 20px;
@@ -1608,6 +1607,25 @@ color: white;
   border-radius: 4px;
   color: white;
   }
+
+  .food-select {
+    width: 100%;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: white;
+    font-size: 14px;
+  }
+
+  .food-select:focus {
+      outline: none;
+      border-color: #4a90e2;
+  }
+
+  .addtoCart3:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
 
 /* .listEvents .description label{
 z-index: 100;
@@ -2742,8 +2760,7 @@ font-weight: bold;
 @media screen and (max-width: 768px) {
   .seat-map-container {
     padding: 10px;
-    width: 95%;
-    margin: 10px;
+    width: 100% !important;
     max-height: 80vh; /* Increase height on mobile */
   }
 
@@ -2794,10 +2811,14 @@ font-weight: bold;
   }
 
   .seat-grid {
-    max-height: 50vh; /* Adjust grid height for mobile */
+    width: 105% !important; /* Adjust grid height for mobile */
+    margin: -10px !important;
   }
 
   .seat-row {
+    transform-origin: center;
+    width: 100%;
+    overflow: visible;
     gap: 3px;
   }
 }
