@@ -2,20 +2,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 
-//const fetch = require('node-fetch');
 const fs = require('fs');
-
-// const puppeteer = require("puppeteer");
-// const convert = require('svg-to-img');
-
 const nodemailer = require('nodemailer');
-
-// const Recipient = require("mailersend").Recipient;
-// const EmailParams = require("mailersend").EmailParams;
-// const Sender = require("mailersend").Sender;
-//const { MailerSend } = require("mailersend");
-
-//const { MailerSend, Sender, Token, Recipient, EmailParams } = require("mailersend");
 
 //Below should be 5000 for prod
 const port = process.env.PORT || 5570;
@@ -71,9 +59,7 @@ app.get('/YeShamMasthani', (req, res) => {
 app.use(express.static(__dirname));
 
 var WebSocketServer = require("ws").Server
-// var server = http.createServer(app)
 const server = app.listen(port, () => console.log(`Node server listening on port ${port}`));
-// server.listen(port, () => console.log(`Node server listening on port ${port}`))
 
 console.log("http server listening on %d", port)
 
@@ -81,14 +67,6 @@ var wss = new WebSocketServer({server: server})
 console.log("websocket server created")
 
 require("dotenv").config();
-
-//pupeeter
-// const browser = puppeteer.launch({
-//   'args' : [
-//     '--no-sandbox',
-//     '--disable-setuid-sandbox'
-//   ]
-// });
 
 const {KindeClient, GrantType} = require("@kinde-oss/kinde-nodejs-sdk");
 const { type } = require('os');
@@ -257,37 +235,6 @@ app.get('/getSeats/:eventId', async (req, res) => {
   }
 });
 
-// app.get('/getSeats', async (req, res) => {
-//   try {
-//     console.log('Accessed /getSeats route'); // Add this log statement
-
-//     const seats = await Seat.find({}); // Find all products in the collection
-
-//     console.log('Seats fetched:', seats); // Add this log statement
-
-//     // Send the products as JSON
-//     res.json(seats);
-//   } catch (error) {
-//     console.error('Error fetching seats from MongoDB:', error);
-//     res.status(500).json({ error: 'Failed to fetch seats' });
-//   }
-// });
-
-// app.post('/updateSeat', async (req, res) => {
-//   try {
-//       const { eventId, seatNumber, status } = req.body;
-//       const updatedSeat = await Seat.findOneAndUpdate(
-//           { eventId, seatNumber },
-//           { status },
-//           { new: true }
-//       );
-//       res.json(updatedSeat);
-//   } catch (error) {
-//       console.error('Error updating seat:', error);
-//       res.status(500).json({ error: 'Failed to update seat' });
-//   }
-// });
-
 app.post('/updateSeat', async (req, res) => {
   try {
       const { eventId, seatNumber, status } = req.body;
@@ -317,9 +264,6 @@ app.post('/updateSeat', async (req, res) => {
       res.status(500).json({ error: 'Failed to update seat' });
   }
 });
-
-// Add new endpoint to verify seats are still available
-// In server.js, update the /verifySeats endpoint:
 
 app.post('/verifySeats', async (req, res) => {
   try {
@@ -368,27 +312,6 @@ app.post('/verifySeats', async (req, res) => {
   }
 });
 
-// app.post('/verifySeats', async (req, res) => {
-//   try {
-//       const { eventId, seats } = req.body;
-//       const seatStatuses = await Seat.find({
-//           eventId,
-//           seatNumber: { $in: seats }
-//       });
-
-//       const allAvailable = seatStatuses.every(seat => 
-//           seat.status === 'available' || seat.status === 'selected'
-//       );
-
-//       res.json({ available: allAvailable });
-//   } catch (error) {
-//       console.error('Error verifying seats:', error);
-//       res.status(500).json({ error: 'Failed to verify seats' });
-//   }
-// });
-
-// WebSocket server
-
 let numberOfClients = 0;
 const clients = new Set();
 
@@ -426,10 +349,7 @@ wss.on('connection', (ws) => {
               let seatsToUpdateUnavailable = [];
   
               if (Array.isArray(seats) && seats.length > 0) {
-                  // Use seats from data.seats
-                  //seatsToUpdateAvailable = seats.map(seat => seat.seatNumber);
                   seatsToUpdateAvailable = seats
-                  console.log("Here are the seats before", seatsToUpdateAvailable)
                   console.log(`Updating seats from data.seats for event ${item.eventId}: ${seatsToUpdateAvailable.join(', ')} to available`);
               } else if (Array.isArray(item.selectedSeats) && item.selectedSeats.length > 0) {
                   // Use item.selectedSeats if data.seats is not provided
@@ -463,6 +383,28 @@ wss.on('connection', (ws) => {
                     console.log(`Updated ${result.modifiedCount} seats to available`);
                 } catch (error) {
                     console.error('Error updating seat status:', error);
+                }
+              }
+              else{
+                try {
+                  // Update food quantity and price in the cart
+                  if (item.foodCount !== undefined && item.foodPrice !== undefined) {
+                      item.quantity = item.foodCount;
+                      item.variablePrice += item.foodPrice;
+                  }
+
+                  // Broadcast cart update to all connected clients
+                  wss.clients.forEach((client) => {
+                      if (client !== ws && client.readyState === WebSocket.OPEN) {
+                          client.send(JSON.stringify({
+                              action: 'cartUpdated',
+                              requestReload: true,
+                              cart: cart
+                          }));
+                      }
+                  });
+              } catch (error) {
+                  console.error('Error updating food details:', error);
                 }
               }
           });
@@ -506,27 +448,12 @@ const calculateOrderAmount = (items) => {
   let totalAmountCents = 0; // Initialize total amount to zero
 
   totalAmountCents = items.reduce((total, item) => {
-    const itemTotal = item.price * item.quantity;
-    const itemTotalWithFee = itemTotal + item.fee;
+    
+    const itemTotal = item.price;
+
+    return total + itemTotal;
   
-    if (item.inclFee === "True") {
-      if (item.promoAmount) {
-        return Math.round(total + itemTotalWithFee - (item.promoAmount / 100 * itemTotal));
-      } else {
-        return Math.round(total + itemTotalWithFee);
-      }
-    } else {
-      if (item.promoAmount) {
-        return total + (itemTotal - (item.promoAmount / 100 * itemTotal));
-      } else {
-        return total + itemTotal;
-      }
-    }
   }, 0);
-
-  console.log("Total amount cents: " + totalAmountCents);
-
-  //reduceQuantity(items);
 
   return totalAmountCents;
 };
@@ -579,59 +506,6 @@ async function process_qr(customerData) {
   }
 }
 
-// async function process_qr(customerData) {
-//   const url = "https://api.qr-code-generator.com/v1/create?access-token=EIlebKMHtkzJgmef0l3iYp_F20RfsQ8xFsuxt6N1Ru24B9ucs--fPa1sCEJpkv-B";
-
-//   const payload = JSON.stringify({
-//     "frame_name": "bottom-frame",
-//     "qr_code_text": JSON.stringify(customerData),
-//     "image_format": "SVG",
-//     "frame_color": "#131313",
-//     "frame_icon_name": "mobile",
-//     "frame_text": "Eventifyed",
-//     "marker_left_template": "version13",
-//     "marker_right_template": "version13",
-//     "marker_bottom_template": "version13",
-//   });
-  
-//   const headers = {
-//     'Content-Type': 'application/json',
-//     'Cookie': 'AWSALB=mjK0XwMtS9Sta9QVo0hZaph6Nyqb9tqVQfZvFDr93eL/Zx9zqUnssj56QNCB1v6cCSzB9vfsQ3lb+LSmaTICrBh5ugDeeTj9yctmifsNWfEFtphXyg5LE4Tc8sE6; AWSALBCORS=mjK0XwMtS9Sta9QVo0hZaph6Nyqb9tqVQfZvFDr93eL/Zx9zqUnssj56QNCB1v6cCSzB9vfsQ3lb+LSmaTICrBh5ugDeeTj9yctmifsNWfEFtphXyg5LE4Tc8sE6'
-//   };
-
-//   try {
-//     const response = await fetch(url, {
-//       method: 'POST',
-//       headers: headers,
-//       body: payload,
-//     });
-
-//     if (response.ok) {
-//       const svgContent = await response.text();
-
-//       // Save the SVG content to a file
-//       fs.writeFileSync('output.svg', svgContent, 'utf-8');
-//       console.log('QR code saved as output.svg');
-
-//       const pngBuffer = await convert.from(svgContent).toPng({
-//         width: 400,
-//         height: 500
-//       });
-
-//       fs.writeFileSync(`CustomerQRCodes/${customerData.customerID}_${customerData.eventName}_Eventifyed_Pass.png`, pngBuffer);
-//       console.log(`SVG converted to PNG: CustomerQRCodes/${customerData.customerID}_${customerData.eventName}_Eventifyed_Pass.png`);
-
-//       return `CustomerQRCodes/${customerData.customerID}_${customerData.eventName}_Eventifyed_Pass.png`
-
-//     } else {
-//       const errorMessage = await response.text();
-//       console.error(`Error: ${response.status} - ${errorMessage}`);
-//     }
-//   } catch (error) {
-//     console.error('Error:', error);
-//   }
-// }
-
 app.post("/create-payment-intent", async (req, res) => {
   const { items } = req.body;
   // Alternatively, set up a webhook to listen for the payment_intent.succeeded event
@@ -642,7 +516,17 @@ app.post("/create-payment-intent", async (req, res) => {
     if (Array.isArray(item.selectedSeats) && item.selectedSeats.length > 0) {
       description += `\n  Seats: ${item.selectedSeats.join(', ')}`;
     }
+
+        // Only include food info if it exists
+    if (item.foodCount && typeof item.foodCount === 'object') {
+      const foodDetails = Object.entries(item.foodCount).map(([foodName, quantity]) => {
+        return `\n  Meal: ${foodName} x ${quantity}`;
+      }).join('');
+      description += foodDetails;
+    }
+
     return description;
+    
   }).join('\n\n');
 
   // Create a PaymentIntent with the order amount and currency
@@ -686,6 +570,15 @@ app.post("/insert-customer-details", async (req, res) => {
         if (Array.isArray(item.selectedSeats) && item.selectedSeats.length > 0) {
           description += `\n  Seats: ${item.selectedSeats.join(', ')}`;
         }
+
+        // Only include food info if it exists
+        if (item.foodCount && typeof item.foodCount === 'object') {
+          const foodDetails = Object.entries(item.foodCount).map(([foodName, quantity]) => {
+            return `\n  Meal: ${foodName} x ${quantity}`;
+          }).join('');
+          description += foodDetails;
+        }
+
         return description;
       }).join('\n\n');
       
@@ -720,62 +613,6 @@ app.post("/insert-customer-details", async (req, res) => {
     await sendEmail(customerEmail, firstName, customerID, eventName, ticketDescriptionWithLineBreaks);
     res.status(200).json({ message: 'Customer inserted and email sent successfully' });
     //res.status(500).json({ message: 'Customer inserted and email sent successfully' });
-
-    //Create email with mailersend 
-    // const recipients = [new Recipient("vinayakunnithan@yahoo.com", "Recipient")];
-    // const sentFrom = new Sender("team@eventifyed.com", "Vinayak Unnithan");
-
-    // const emailHtml = `
-    //   <p>Greetings from the team, you got this message through MailerSend.</p>
-    // `;
-
-    // const emailParams = new EmailParams()
-    //   .setFrom("trial-ynrw7gyq6qk42k8e.mlsender.net")
-    //   .setTo(recipients)
-    //   .setReplyTo(sentFrom)
-    //   .setSubject("You've got tickets from Eventifyed")
-    //   .setHtml(emailHtml)
-    //   .setText(`Hi ${customerName}],
-
-    //             We are pleased to inform you that you have successfully received tickets for ${eventName}. Enclosed within this email, you will find your personalized QR code, which will serve as your entry pass. Please ensure to present this QR code to the designated ticket organizer upon arrival at the event venue.
-                
-    //             Should you encounter any challenges in accessing or retrieving your QR code, please do not hesitate to contact us by simply replying to this email. Our team is readily available to assist you in resolving any queries or concerns you may have.
-                
-    //             We look forward to your attendance and wish you an enjoyable experience at ${eventName}.
-                
-    //             Warm regards,
-                
-    //             Vinayak Unnithan
-    //             Founder
-    //             Eventifyed Team`)
-
-    // const mailersend = new MailerSend({
-    //   api_key: process.env.API_KEY,
-    // });
-
-    //Send email with QR to customer
-    //mailersend.email.send(emailParams);
-
-    // Read SVG content from file
-    //const svgContent = fs.readFileSync('output.svg', 'utf-8');
-
-    // Send SVG content as response
-    //res.set('Content-Type', 'image/svg+xml');
-    // res.send(svgContent);
-    //res.send(svgContent);
-
-    //console.log("Email has been sent");  
-    // Send email with QR to customer
-
-    // mailersend.token.create(token)
-    // .then((response) => console.log(response.body))
-    // .catch((error) => console.log(error.body));
-        
-    // mailersend.email.send(emailParams).then(() => {
-    //   console.log("Email sent successfully");
-    // }).catch((error) => {
-    //   console.error("Error sending email:", error);
-    // });
 
     } catch (error) {
     console.error('Error inserting customer into MongoDB:', error);

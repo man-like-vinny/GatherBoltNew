@@ -5,21 +5,33 @@ const stripe = Stripe("pk_live_51O2y4dASLMn2l3lqKpiDGgetEi9CbrP9miuR4Ns4pLxktfpv
 //const stripe = Stripe("pk_test_51O2y4dASLMn2l3lqZONitI1i4fQZcrWdhq7khNIvEG66SADdBXVagGLrCLDoYDTh8gYeiLdwicrM91iL0gJE5UL400rNvTqxBC");
 const validItems = listCart.filter(item => item !== null);
 
-//console.log(listCart);
-//console.log(validItems);
-
 // The items the customer wants to buy
 const itemsForStripe = validItems.map(product => {
+  const basePrice = product.variablePrice * product.quantity * 100; // in cents
+  const foodPrice = product.foodPrice ? product.foodPrice * 100 : 0; // in cents
+  const promoAmount = product.promotionApplied || 0;
+  const hasBooking = product.checkBooking === "True";
+
+  const subtotal = basePrice + foodPrice;
+
+  const fee = hasBooking ? (0.01845 * (subtotal / 100) + 0.3075) * 100 : 0;
+
+  // Discount if applicable
+  const discount = promoAmount ? (promoAmount / 100) * subtotal : 0;
+
+  const finalPrice = Math.round(subtotal - discount + fee);
+
   return {
     id: product.name, // Use a unique identifier for each item, e.g., the product name
-    price: product.variablePrice * 100, // Convert to cents (Stripe requires prices in the smallest currency unit)
-    fee: (0.01845 * (product.variablePrice * product.quantity) + 0.3075) * 100,
+    price: finalPrice, // Convert to cents (Stripe requires prices in the smallest currency unit)
+    fee: Math.round(fee),
     staticQuant: product.staticQuantity,
     quantity: product.quantity,
     description: product.ticktype,
     inclFee: product.checkBooking,
     promoAmount: product.promotionApplied,
-    selectedSeats: product.selectedSeats
+    selectedSeats: product.selectedSeats,
+    foodCount: product.foodCount
   };
 });
 
@@ -27,14 +39,10 @@ window.itemsForStripe = itemsForStripe;
 
 // Access the itemsForStripe variable from the global scope
 const items = window.itemsForStripe;
-// const items = [{ id: "xl-tshirt" }];
 
 items.forEach(item => {
   const itemId = item.id;
-  const itemStatic = item.inclFee;
-  //console.log("The item is the following: " + itemId);
-  console.log("Booking fee: " + itemStatic);
-  // Do something with the 'itemId' here, such as displaying it on the page or using it in your Stripe setup.
+  const itemStatic = item.price;
 });
 
 let elements;
@@ -45,8 +53,6 @@ checkStatus();
 document
   .querySelector("#payment-form")
   .addEventListener("submit", handleSubmit);
-
-//clearCart();
 
 let emailAddress = '';
 let customerName = '';
@@ -93,56 +99,6 @@ async function initialize() {
   paymentElement.mount("#payment-element");
 }
 
-// async function handleSubmit(e) {
-//   e.preventDefault();
-//   setLoading(true);
-
-//   //customerName = addressElement.name;
-//   customerEmail = emailAddress;
-
-//   spinnerOverlay.style.display = 'flex';
-
-//   const insertCustomer = await fetch("/insert-customer-details", {
-//     method: "POST",
-//     headers: { "Content-Type": "application/json" },
-//     body: JSON.stringify({ items, customerName, customerEmail, customerID }),
-//   });
-  
-//   if(!insertCustomer.ok){
-//     throw new Error ("Failed to send email") 
-//   }
-
-//   else{
-//   const svgContent = await insertCustomer.text();
-
-//   const { error, paymentIntent } = await stripe.confirmPayment({
-//     elements,
-//     confirmParams: {
-//       // Make sure to change this to your payment completion page
-//       return_url: "http://www.eventifyed.com/success.html",
-//       //return_url: "/success.html",
-//       receipt_email: emailAddress,
-//     },
-//   });
-// }
-
-
-//   //delayTimer(2000);
-
-//   // This point will only be reached if there is an immediate error when
-//   // confirming the payment. Otherwise, your customer will be redirected to
-//   // your `return_url`. For some payment methods like iDEAL, your customer will
-//   // be redirected to an intermediate site first to authorize the payment, then
-//   // redirected to the `return_url`.
-//   if (error.type === "card_error" || error.type === "validation_error") {
-//     showMessage(error.message);
-//   } else {
-//     showMessage("An unexpected error occurred.");
-//   }
-
-//   setLoading(false);
-// }
-
 async function handleSubmit(e) {
   e.preventDefault();
   setLoading(true);
@@ -186,52 +142,6 @@ async function handleSubmit(e) {
     }
   }
 }
-
-
-// async function handleSubmit(e) {
-//   e.preventDefault();
-//   setLoading(true);
-
-//   //customerName = addressElement.name;
-//   customerEmail = emailAddress;
-
-//   spinnerOverlay.style.display = 'flex';
-
-//   const insertCustomer = await fetch("/insert-customer-details", {
-//     method: "POST",
-//     headers: { "Content-Type": "application/json" },
-//     body: JSON.stringify({ items, customerName, customerEmail, customerID }),
-//   });
-  
-//   if(!insertCustomer.ok){
-//     throw new Error ("Failed to send email") 
-//   }
-
-//   else{
-//     const { error, paymentIntent } = await stripe.confirmPayment({
-//       elements,
-//       redirect: "if_required",
-//       confirmParams: {
-//         // Make sure to change this to your payment completion page
-//         return_url: "http://www.eventifyed.com/success.html",
-//         //return_url: "/success.html",
-//         receipt_email: emailAddress,
-//       },
-//     })
-
-//     const svgContent = await insertCustomer.text();
-
-//     if (error.type === "card_error" || error.type === "validation_error") {
-//       showMessage(error.message);
-//     } else {
-//       showMessage("An unexpected error occurred.");
-//     }
-
-//     spinnerOverlay.style.display = 'none';
-//     setLoading(false);
-// }
-//   //delayTimer(2000);
-// }
 
 // Fetches the payment intent status after payment submission
 async function checkStatus() {

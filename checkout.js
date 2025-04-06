@@ -4,38 +4,35 @@ let returntoCart = document.querySelector('#returntocartlogo');
 const spinnerOverlay = document.getElementById('spinner-overlay');
 var host = location.origin.replace(/^http/, 'ws')
 
-// function checkCart() {
-//     var cookieValue = document.cookie
-//         .split('; ')
-//         .find(row => row.startsWith('listCart='));
-//     if (cookieValue) {
-//         listCart = JSON.parse(cookieValue.split('=')[1]);
-//     }
-// }
-
-// Add this near the top of checkout.js
 function checkCart() {
-  var cookieValue = document.cookie
-      .split('; ')
-      .find(row => row.startsWith('listCart='));
-  
-  if (cookieValue) {
-      try {
-          // Parse the cookie value and handle sparse array
-          let parsedCart = JSON.parse(cookieValue.split('=')[1]);
-          // Convert sparse array to dense array by filtering out null/empty values
-          listCart = parsedCart.filter(item => item !== null && item !== undefined);
-          console.log("Number of cart items:", listCart.length);
-          console.log("Cart contents:", listCart);
-      } catch (e) {
-          console.error("Error parsing cart:", e);
-          listCart = [];
-      }
-  }
+    var cookieValue = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('listCart='));
+    if (cookieValue) {
+        listCart = JSON.parse(cookieValue.split('=')[1]);
+    }
 }
 
-
 checkCart();
+
+// Add this near the top of checkout.js
+// function checkCart() {
+//   var cookieValue = document.cookie
+//       .split('; ')
+//       .find(row => row.startsWith('listCart='));
+  
+//   if (cookieValue) {
+//       try {
+//           // Parse the cookie value and handle sparse array
+//           let parsedCart = JSON.parse(cookieValue.split('=')[1]);
+//           // Convert sparse array to dense array by filtering out null/empty values
+//           listCart = parsedCart.filter(item => item !== null && item !== undefined);
+//       } catch (e) {
+//           console.error("Error parsing cart:", e);
+//           listCart = [];
+//       }
+//   }
+// }
 
 if(listCart.length === 0){
   window.location.href = "events.html";
@@ -43,7 +40,6 @@ if(listCart.length === 0){
 else{
   addCartToHTML();
 }
-
 
 function addCartToHTML() {
     // clear data default
@@ -67,8 +63,29 @@ function addCartToHTML() {
                 newCart.classList.add('item');
                 // Generate seat info if seats are selected
                 let seatInfo = '';
+                let foodSelect = '';
+
                 if (product.seatSelectionTypes?.includes(product.ticktype) && product.selectedSeats?.length > 0) {
                     seatInfo = `<div class="seat-info">Seat${product.selectedSeats.length > 1 ? 's' : ''}: ${product.selectedSeats.join(', ')}</div>`;
+
+                    if (product.foodCount) {
+                        const foodItems = Object.entries(product.foodCount).map(([foodName, quantity]) => {
+                            return `<div class="seat-info">Meal: ${foodName} x${quantity}</div>`; // No price
+                        }).join('');
+                        foodSelect = foodItems;
+                    }
+                } else if (product.ticktype === "Extra Meal" && product.foodCount) {
+                    const foodItems = Object.entries(product.foodCount).map(([foodName, quantity]) => {
+                        return `<div class="seat-info">Meal: ${foodName} x${quantity}</div>`; // No price for Extra Meal
+                    }).join('');
+                    foodSelect = foodItems;
+                } else if (product.foodCount) {
+                    const foodItems = Object.entries(product.foodCount).map(([foodName, quantity]) => {
+                        return `<div class="seat-info">Meal: ${foodName} x${quantity} (+€${quantity * 10})</div>`; // With price
+                    }).join('');
+                    foodSelect = foodItems;
+                } else {
+                    foodSelect = '';
                 }
 
                 newCart.innerHTML =
@@ -77,6 +94,7 @@ function addCartToHTML() {
                         <div class="name">${product.name}</div>
                         <div class="price">Selected Ticket: ${product.ticktype}</div>
                         ${seatInfo}
+                        ${foodSelect}
                     </div>
                     <div class="quantity">x${product.quantity}</div>
                     <div class="returnPrice">€${product.variablePrice * product.quantity}</div>`;
@@ -84,11 +102,19 @@ function addCartToHTML() {
                 listCartHTML.appendChild(newCart);
                 totalQuantity = totalQuantity + product.quantity;
 
-                fee = (0.01845 * (product.variablePrice * product.quantity) + 0.3075) * 100;
+                const baseTicketPrice = product.variablePrice * product.quantity * 100;
+                const baseFoodPrice = product.foodPrice ? product.foodPrice * 100 : 0;
+                const baseTotalPrice = baseTicketPrice + baseFoodPrice;
+                
+                // Calculate fee
+                let fee = (0.01845 * (baseTotalPrice / 100) + 0.3075) * 100;
+                
+                // Store initial price before applying discount
+                let beforeFeePrice = totalPrice + baseTotalPrice;
+                let completePrice = Math.round(beforeFeePrice + fee);
+
                 promoAmount = product.promotionApplied;
-                beforeFeePrice = completePrice = Math.round(totalPrice + (product.variablePrice * product.quantity * 100))
-                completePrice = Math.round(totalPrice + (product.variablePrice * product.quantity * 100) + fee);
-                console.log(product.checkBooking);
+
                 if(product.checkBooking == "True"){
                   if(promoAmount){
                     discountAmount = (promoAmount/100 * beforeFeePrice);
@@ -100,15 +126,14 @@ function addCartToHTML() {
                 }
                 else{
                   if(promoAmount){
-                    oneTimeDiscount = (promoAmount / 100) * (product.variablePrice * product.quantity * 100);
-                    discountAmount = discountAmount + (promoAmount / 100) * (product.variablePrice * product.quantity * 100);
-                    totalPrice = totalPrice + (product.variablePrice * product.quantity * 100) - oneTimeDiscount;
+                    const oneTimeDiscount = (promoAmount / 100) * baseTotalPrice;
+                    discountAmount += oneTimeDiscount;
+                    totalPrice += baseTotalPrice - oneTimeDiscount;
                   }
                   else{
-                    totalPrice = totalPrice + (product.variablePrice * product.quantity * 100);
+                    totalPrice += baseTotalPrice;
                   }
                 }
-                //console.log("check total price here: " + totalPrice);
             }
         });
     }
@@ -275,25 +300,26 @@ returntoCart.addEventListener('click', function() {
                   const matchingTicket = matchingProduct.type.find(ticket => ticket.ticketType === item.ticktype);
 
                   if (matchingTicket) {
-                    console.log("We got here", item.selectedSeats)
+                    if(Array.isArray(item.selectedSeats)) {
                       item.selectedSeats.forEach(selectedSeat => {
                           const matchingSeat = seat.find(seat => 
                             seat.seatNumber === selectedSeat
                           );
 
                           if (matchingSeat) {
-                              console.log(matchingSeat)
                               matchingSeat.status = "available";
                               matchingSeats.push(matchingSeat.seatNumber); // Store in array
                           }
                           else{
-                            console.log("Ticket wasnt found mate")
+                            console.log("No ticket found")
                           }
                       });
+                    } else {
+                      console.log("No seat selection for ticket type: ", item.ticktype)
+                    }
                   }
               }
           });
-          console.log("Exists here: ", matchingSeats)
           updateCartOnServer(validCart, matchingSeats);
           delayTimer(2000);
       });
@@ -314,8 +340,6 @@ function updateSeatOnServer(seatData){
     const ws = new WebSocket(host); // Replace with your WebSocket server URL
   
     ws.addEventListener('open', () => {
-      //console.log('WebSocket connection is open.');
-
       const message = JSON.stringify({
         action: 'seatUpdate',
         seats: seatData,
@@ -327,7 +351,6 @@ function updateSeatOnServer(seatData){
     ws.addEventListener('ping', () => {
         // When a ping message is received from the server, respond with a pong
         ws.pong();
-        //console.log('Sent a ping to the server.');
       });
 
     ws.addEventListener('close', (event) => {
@@ -370,8 +393,6 @@ function updateCartOnServer(cart, seats) {
     const ws = new WebSocket(host); // Replace with your WebSocket server URL
   
     ws.addEventListener('open', () => {
-      //console.log('WebSocket connection is open.');
-
       const message = JSON.stringify({
         action: 'updateCart',
         cart: cart,
@@ -384,7 +405,6 @@ function updateCartOnServer(cart, seats) {
     ws.addEventListener('ping', () => {
         // When a ping message is received from the server, respond with a pong
         ws.pong();
-        //console.log('Sent a ping to the server.');
       });
 
     ws.addEventListener('close', (event) => {
@@ -411,10 +431,10 @@ function updateCartOnServer(cart, seats) {
         console.log('Cart updated by another user');
         //alert('Another user updated the cart');
 
-        if (data.requestReload) {
-            // Reload the page when requested by the server
-            window.location.reload();
-          }
+        // if (data.requestReload) {
+        //     // Reload the page when requested by the server
+        //     window.location.reload();
+        //   }
         //checkCart(); // Update the cart on the client side
       }
     });
@@ -492,7 +512,6 @@ function startTimer() {
                     const matchingTicket = matchingProduct.type.find(ticket => ticket.ticketType === item.ticktype);
   
                     if (matchingTicket) {
-                      console.log("We got here", item.selectedSeats)
                         item.selectedSeats.forEach(selectedSeat => {
                             const matchingSeat = seat.find(seat => 
                               seat.seatNumber === selectedSeat
@@ -504,13 +523,12 @@ function startTimer() {
                                 matchingSeats.push(matchingSeat.seatNumber); // Store in array
                             }
                             else{
-                              console.log("Ticket wasnt found mate")
+                              console.log("No ticket found")
                             }
                         });
                     }
                 }
             });
-            console.log("Exists here: ", matchingSeats)
             updateCartOnServer(validCart, matchingSeats);
             delayTimer(2000);
         });
@@ -520,8 +538,7 @@ function startTimer() {
 
   function delayTimer(delay){
     setTimeout(function() {
-        console.log("delay taken place");
-        window.location.href = '/events.html';
+        window.location.href = '/events';
     }, delay);
   }
 

@@ -66,7 +66,7 @@ function setPromoHeaderDefault() {
 
     promoField.style.display = 'none';
 
-    marginValue -= 100; // Increment the margin by 20px each time
+    marginValue -= 80; // Increment the margin by 20px each time
     promoHeader.style.marginTop = `${marginValue}px`;
 
     
@@ -137,64 +137,11 @@ fetch(`/getSeats/${eventId}`)  // ✅ Uses path parameter correctly
     })
     .then(data => {
         seats = data;
-        console.log(seats); // Check the fetched seat data
     })
     .catch(error => console.error('Error fetching seats:', error));
 
 
 let listCart = [];
-
-
-// checkoutButton.addEventListener('click', function(){
-//     if (listCart.every(element => element === null) || listCart.length === 0) {
-//         // Don't do anything or show a message to the user indicating that the cart is empty.
-//         window.alert("Cart Empty!")
-//         //return;
-//     }
-//     else{
-//         //const eventId = currentEventId;
-//         //const seatsToBuy = listCart[eventId]?.selectedSeats || [];
-//         //alert('Checkout successful! Your seats are now unavailable.');
-//         window.location.href = '/checkout.html';
-//     }
-// })
-
-// In event.js, modify the checkoutButton event listener:
-
-// Update the checkoutButton event listener:
-// checkoutButton.addEventListener('click', async function(){
-//     if (listCart.every(element => element === null) || listCart.length === 0) {
-//         window.alert("Cart Empty!")
-//         return;
-//     }
-
-//     // Check if any items in cart have seat selections
-//     const itemsWithSeats = listCart.filter(item => item && item.selectedSeats && item.selectedSeats.length > 0);
-    
-//     if (itemsWithSeats.length > 0) {
-//         for (const item of itemsWithSeats) {
-//             const response = await fetch('/verifySeats', {
-//                 method: 'POST',
-//                 headers: {
-//                     'Content-Type': 'application/json'
-//                 },
-//                 body: JSON.stringify({
-//                     eventId: item.id,
-//                     seats: item.selectedSeats
-//                 })
-//             });
-
-//             const result = await response.json();
-            
-//             if (!result.available) {
-//                 window.alert("Some selected seats are no longer available. Please refresh your cart.");
-//                 return;
-//             }
-//         }
-//     }
-
-//     window.location.href = '/checkout.html';
-// });
 
 checkoutButton.addEventListener('click', async function(){
     if (listCart.every(element => element === null) || listCart.length === 0) {
@@ -238,8 +185,6 @@ checkoutButton.addEventListener('click', async function(){
                         status: 'unavailable'
                     }]
                 }));
-
-                console.log("done with seats apprently")
             }
 
             // Close the WebSocket connection
@@ -300,29 +245,11 @@ class SeatMap {
     this.seatData = await response.json();
   }
 
-//   markSeatsAsUnavailable(seats) {
-//     seats.forEach(seatInfo => {
-//         const seatElement = this.container.querySelector(`[data-seat="${seatInfo.seatNumber}"]`);
-//         if (seatElement) {
-//             seatElement.className = 'seat unavailable';
-//         }
-//     });
-//   }
-
     markSeatsAsUnavailable(seats) {
         seats.forEach(seatInfo => {
             this.updateSeatStatus(seatInfo);
         });
     }
-
-
-
-//   updateSeatStatus(seatInfo) {
-//     const seatElement = this.container.querySelector(`[data-seat="${seatInfo.seatNumber}"]`);
-//     if (seatElement) {
-//       seatElement.className = `seat ${seatInfo.status}`;
-//     }
-//   }
 
   updateSeatStatus(seatInfo) {
     const seatElement = this.container.querySelector(`[data-seat="${seatInfo.seatNumber}"]`);
@@ -556,16 +483,6 @@ class SeatMap {
                 status: 'in_cart'
             })
         });
-
-        // Notify other clients about the seat update
-        // this.ws.send(JSON.stringify({
-        //     action: 'seatUpdated',
-        //     seat: {
-        //         eventId: this.eventId,
-        //         seatNumber,
-        //         status: 'in_cart'
-        //     }
-        // }));
     }
 
     // If the product is already in cart, append the new seats
@@ -576,12 +493,10 @@ class SeatMap {
         listCart[this.eventId].selectedSeats.push(...seats);
         //listCart[this.eventId].quantity++;
         //listCart[this.eventId].ticketQuantity--;
-        console.log("Intial food selection: ", foodSelection);
         foodArray.push(foodSelection);  // Add food selection to array
         addCart(this.eventId, this.ticketType, seats, foodArray);
     } else {
         // Add to cart with selected seats
-        console.log("Intial food selection: ", foodSelection);
         foodArray.push(foodSelection);  // Add food selection to array
         addCart(this.eventId, this.ticketType, seats, foodArray);
     }
@@ -657,32 +572,6 @@ ws.addEventListener('error', (error) => {
   console.error('WebSocket error:', error);
 });
 
-// ws.addEventListener('message', (event) => {
-//     const data = JSON.parse(event.data);
-//     if (data.action === 'numberOfClients') {
-//       // Handle the number of connected clients
-//       const numberOfClients = data.count;
-//       console.log(`Number of connected clients: ${numberOfClients}`);
-//     } else if (data.action === 'cartUpdated') {
-//       // Handle other actions, e.g., cart updates
-//       console.log('Cart updated by another user');
-      
-//       // Check if the server requests a fetch to update the content
-//       if (data.requestFetch) {
-//         // Perform a fetch to update the products data
-//         fetch('/getProducts')
-//           .then(response => response.json())
-//           .then(updatedData => {
-//             // Update the products data with the fetched data
-//             products = updatedData;
-//             // Call the addDataToHTML function to update the page content
-//             //addDataToHTML();
-//           });
-//       }
-//     }
-//   });
-  
-
   ws.addEventListener('message', (event) => {
     const data = JSON.parse(event.data);
     if (data.action === 'numberOfClients') {
@@ -731,14 +620,12 @@ function addDataToHTML() {
     listProductHTML.innerHTML = '';
 
     const selectedProduct = products.find(product => product.name == currentFileName);
-    // const selectedProduct = products.find(product => product.eventID == globalProductID);
-    //console.log(selectedProduct.appliedID);
     const ProductPriceOptionOne = selectedProduct.type.find(type => type.ticketType === selectedProduct.option1);
     const ProductPriceOptionTwo = selectedProduct.type.find(type => type.ticketType === selectedProduct.option2);
     const ProductPriceOptionThree = selectedProduct.type.find(type => type.ticketType === selectedProduct.option3);
     const ProductPriceOptionFour = selectedProduct.type.find(type => type.ticketType === selectedProduct.option4);
-    
-    //console.log(ProductPriceOptionTwo.ticketQuantity);
+    const ProductPriceOptionFive = selectedProduct.type.find(type => type.ticketType === selectedProduct.option5);
+
     if(ProductPriceOptionOne){
         if(ProductPriceOptionOne.ticketQuantity == 0)
         {
@@ -781,7 +668,17 @@ function addDataToHTML() {
             ProductPriceOptionFour.productAvailability = "Available";
         }
     }
-    //console.log(selectedProduct);
+
+    if(ProductPriceOptionFive){
+        if(ProductPriceOptionFive.ticketQuantity == 0)
+        {
+            ProductPriceOptionFive.productAvailability = "Sold Out";
+        }
+        else
+        {
+            ProductPriceOptionFive.productAvailability = "Available";
+        }
+    }
 
         if(selectedProduct) {
             let newProduct = document.createElement('div');
@@ -808,8 +705,6 @@ function addDataToHTML() {
         
                 // Check if the image is portrait or landscape
                 const isPortrait = backgroundImage.height > backgroundImage.width;
-                // console.log("height:", backgroundImage.height);
-                // console.log("width:", backgroundImage.width);
         
                 // Add the appropriate class to adjust height dynamically
                 newProduct.classList.add(isPortrait ? 'portrait' : 'landscape');
@@ -851,20 +746,29 @@ function addDataToHTML() {
                 <div class="location">${selectedProduct.eventLocation}</div>
                 <div class="ticketHeading">Ticket Options</div>
                 <div class="ticketRules">${selectedProduct.eventRules}</div>
-                <table class="ticketSection" width="100%" style="position: relative; top: 435px;" border="0" cellspacing="0" cellpadding="4">
+                <table class="ticketSection" width="100%" style="position: relative; top: 405px;" border="0" cellspacing="0" cellpadding="4">
                     <tbody>
                         <tr style="background-color: #efefef; color:black;">
-                            <td class="ticketSelection" width="22%" style="position: relative; left: 19px;"><strong>Ticket Selection</strong></td>
-                            <td class="ticketPrice" width="7%"><strong>Price</strong></td>
-                            <td class="ticketStatus" width="16%"><strong>Ticket Status</strong></td>
-                            <td class="foodOption" width="15%"><strong>Food Option</strong></td>
-                            <td width="25%"></td>
+                            <td class="ticketSelection" width="20%" style="position: relative; left: 19px;"><strong>Ticket Selection</strong></td>
+                            <td class="ticketPrice" width="5%"><strong>Price</strong></td>
+                            <td class="ticketStatus" width="10%"><strong>Ticket Status</strong></td>
+                            <td class="ticketTick" width="10%"><strong>Food Option</strong></td>
+                            <td class="foodOption" width="10%"><strong>Meal</strong></td>
+                            <td class="actionButton" width="30%"></td>
                         </tr>
-                        <tr style="color:black; position: relative; top: 5px;">
+                        <tr style="color:black; position: relative;">
                             <td style="position: relative; left: 20px;"><strong>${selectedProduct.option1}</strong></td>
                             <td><strong>€${ProductPriceOptionOne.price}</strong></td>
                             <td>
                                 <strong>${ProductPriceOptionOne.productAvailability}</strong>
+                            </td>
+                            <td class="ticketStatus">
+                                <div class="ticket-benefits">
+                                    ${selectedProduct.hasSeatSelection ? 
+                                        '<span class="vip-badge">VIP</span>' :
+                                        '<input type="checkbox" id="ticket-checkbox-1" class="ticket-checkbox" onchange="toggleFoodSelect(this, \'food-option-1\')">'
+                                    }
+                                </div>
                             </td>
                             <td>
                                 ${selectedProduct.hasSeatSelection ? `
@@ -876,41 +780,120 @@ function addDataToHTML() {
                                 ` : '-'}
                             </td>
                             <td style="position: relative;">
-                                <button class="addtoCart3" disabled id="cart-btn-1" onclick="checkProductId('${selectedProduct.name}', '${selectedProduct.option1}', getFoodSelection('food-option-1'))">Add To Cart</button>
+                                <button class="addtoCart" id="cart-btn-1" onclick="checkProductId('${selectedProduct.name}', '${selectedProduct.option1}', getFoodSelection('food-option-1'), getCheckSelection('ticket-checkbox-1'))">Add To Cart</button>
                             </td>
                         </tr>
-                        <tr class="row2" style="color:black; position: relative; top: 10px;">
+                        <tr class="row2" style="color:black; position: relative;">
                             <td style="position: relative; left: 20px;"><strong>${selectedProduct.option2}</strong></td>
                             <td><strong>€${ProductPriceOptionTwo.price}</strong></td>
                             <td>
                                 <strong>${ProductPriceOptionTwo.productAvailability}</strong>
                             </td>
+                            <td class="ticketStatus">
+                                <div class="ticket-benefits">
+                                    ${ProductPriceOptionTwo.productAvailability === 'VIP' ? 
+                                        '<span class="vip-badge">VIP</span>' :
+                                        '<input type="checkbox" id="ticket-checkbox-2" class="ticket-checkbox" onchange="toggleFoodSelect(this, \'food-option-2\')">'
+                                    }
+                                </div>
+                            </td>
                             <td>
-                                <button class="addtoCart3" onclick="checkProductId('${selectedProduct.name}', '${selectedProduct.option2}')">Add To Cart</button>
+                                ${selectedProduct.hasSeatSelection ? `
+                                <select class="food-select" id="food-option-2" onchange="updateFoodSelection(this, '${selectedProduct.option1}')" disabled>
+                                    <option value="" selected>Select Food</option>    
+                                    <option value="Chicken">Chicken Biryani</option>
+                                    <option value="Veg">Veg Biryani</option>
+                                </select>
+                                ` : '-'}
+                            </td>
+                            <td>
+                                <button class="addtoCart2" onclick="checkProductId('${selectedProduct.name}', '${selectedProduct.option2}',getFoodSelection('food-option-2'), getCheckSelection('ticket-checkbox-2'))">Add To Cart</button>
                             </td>
                         </tr>   
                         ${ProductPriceOptionThree ? `
-                            <tr class="row3" style="color:black; position: relative; top: 15px;">
+                            <tr class="row3" style="color:black; position: relative;">
                                 <td style="position: relative; left: 20px;"><strong>${selectedProduct.option3}</strong></td>
                                 <td><strong>€${ProductPriceOptionThree.price}</strong></td>
                                 <td>
                                     <strong>${ProductPriceOptionThree.productAvailability}</strong>
                                 </td>
+                            <td class="ticketStatus">
+                                <div class="ticket-benefits">
+                                    ${ProductPriceOptionThree.productAvailability === 'VIP' ? 
+                                        '<span class="vip-badge">VIP</span>' :
+                                        '<input type="checkbox" id="ticket-checkbox-3" class="ticket-checkbox" onchange="toggleFoodSelect(this, \'food-option-3\')">'
+                                    }
+                                </div>
+                            </td>
+                            <td>
+                                ${selectedProduct.hasSeatSelection ? `
+                                <select class="food-select" id="food-option-3" onchange="updateFoodSelection(this, '${selectedProduct.option1}')" disabled>
+                                    <option value="" selected>Select Food</option>    
+                                    <option value="Chicken">Chicken Biryani</option>
+                                    <option value="Veg">Veg Biryani</option>
+                                </select>
+                                ` : '-'}
+                            </td>
                                 <td>
-                                    <button class="addtoCart3" onclick="checkProductId('${selectedProduct.name}', '${selectedProduct.option3}')">Add To Cart</button>
+                                    <button class="addtoCart3" onclick="checkProductId('${selectedProduct.name}', '${selectedProduct.option3}',getFoodSelection('food-option-3'), getCheckSelection('ticket-checkbox-3'))">Add To Cart</button>
                                 </td>
                             </tr>` : ''}  
                         ${ProductPriceOptionFour ? `
-                            <tr class="row4" style="color:black; position: relative; top: 20px;">
+                            <tr class="row4" style="color:black; position: relative;">
                                 <td style="position: relative; left: 20px;"><strong>${selectedProduct.option4}</strong></td>
                                 <td><strong>€${ProductPriceOptionFour.price}</strong></td>
                                 <td>
                                     <strong>${ProductPriceOptionFour.productAvailability}</strong>
                                 </td>
+                            <td class="ticketStatus">
+                                <div class="ticket-benefits">
+                                    ${ProductPriceOptionFour.productAvailability === 'VIP' ? 
+                                        '<span class="vip-badge">VIP</span>' :
+                                        '<input type="checkbox" id="ticket-checkbox-4" class="ticket-checkbox" onchange="toggleFoodSelect(this, \'food-option-4\')">'
+                                    }
+                                </div>
+                            </td>
+                            <td>
+                                ${selectedProduct.hasSeatSelection ? `
+                                <select class="food-select" id="food-option-4" onchange="updateFoodSelection(this, '${selectedProduct.option1}')" disabled>
+                                    <option value="" selected>Select Food</option>    
+                                    <option value="Chicken">Chicken Biryani</option>
+                                    <option value="Veg">Veg Biryani</option>
+                                </select>
+                                ` : '-'}
+                            </td>
                                 <td>
-                                    <button class="addtoCart3" onclick="checkProductId('${selectedProduct.name}', '${selectedProduct.option4}')">Add To Cart</button>
+                                    <button class="addtoCart4" onclick="checkProductId('${selectedProduct.name}', '${selectedProduct.option4}',getFoodSelection('food-option-4'), getCheckSelection('ticket-checkbox-4'))">Add To Cart</button>
                                 </td>
-                            </tr>` : ''}                 
+                            </tr>` : ''}    
+                        ${ProductPriceOptionFive ? `
+                            <tr class="row4" style="color:black; position: relative;">
+                                <td style="position: relative; left: 20px;"><strong>${selectedProduct.option5}</strong></td>
+                                <td><strong>€${ProductPriceOptionFive.price}</strong></td>
+                                <td>
+                                    <strong>${ProductPriceOptionFive.productAvailability}</strong>
+                                </td>
+                            <td class="ticketStatus">
+                                <div class="ticket-benefits">
+                                    ${ProductPriceOptionFive.productAvailability === 'VIP' ? 
+                                        '<span class="vip-badge">VIP</span>' :
+                                        '<input type="checkbox" id="ticket-checkbox-5" class="ticket-checkbox" onchange="toggleFoodSelect(this, \'food-option-5\')">'
+                                    }
+                                </div>
+                            </td>
+                            <td>
+                                ${selectedProduct.hasSeatSelection ? `
+                                <select class="food-select" id="food-option-5" onchange="updateFoodSelection(this, '${selectedProduct.option5}')" disabled>
+                                    <option value="" selected>Select Food</option>    
+                                    <option value="Chicken">Chicken Biryani</option>
+                                    <option value="Veg">Veg Biryani</option>
+                                </select>
+                                ` : '-'}
+                            </td>
+                                <td>
+                                    <button class="addtoCart4" onclick="checkProductId('${selectedProduct.name}', '${selectedProduct.option5}',getFoodSelection('food-option-5'), getCheckSelection('ticket-checkbox-5'))">Add To Cart</button>
+                                </td>
+                            </tr>` : ''}                
                     </tbody>
                 </table>
                 <label for="ticketType">Select Ticket Type:</label>
@@ -941,31 +924,19 @@ function addDataToHTML() {
             const ticketQuantityDesc = document.getElementById("ticketqty");
             ticketSelection.addEventListener("change", function() {
                 const selectedValue = ticketSelection.value;
-                //console.log("Selected Value: " + selectedValue);
-                // const selectedProduct = product.name;
 
                 const selectedProductName = ticketSelection.parentElement.querySelector('h2').textContent;
-                //console.log("selectedProductName: " + selectedProductName);
                 const selectedProduct = products.find(product => product.name === selectedProductName);
             
                 if (selectedProduct) {
-                    // Now 'selectedProduct' contains the product information based on the selected ticket type.
-                    // You can use this information to update the cart view or perform any other actions.
-                    //console.log("Selected Product:", selectedProduct);
-                    
                     // You can also get the price for the selected ticket type
                     selectedTicketType = selectedProduct.type.find(type => type.ticketType === selectedValue);
-                    //console.log("Selected TicketType: " + selectedTicketType);
                     if (selectedTicketType) {
-                        //console.log("Selected TicketType: " + selectedTicketType.ticketType);
-                        //console.log("Price: €" + selectedTicketType.price);
                         console.log(" ");
                     } else {
-                        //console.log("Price not found for the selected ticket type.");
                         console.log(" ");
                     }
                 } else {
-                    //console.log("Product not found for the selected ID.");
                     console.log(" ");
                 }
             });
@@ -1002,16 +973,13 @@ fetch('/getProducts')
 .then(response => response.json())
 .then(data => {
     products = data;
-    //console.log("done")
     addEventToHTML();
 })
 
-function checkProductId(productName, productOption, foodSelection){
+function checkProductId(productName, productOption, foodSelection, CheckSelection){
     const selectedProduct = products.find(product => product.name === productName);
-    //console.log(selectedProduct);
     const ticketSelection = document.getElementById("ticketType");
     const selectedValue = ticketSelection.value; // Get the selected value here
-    //console.log("option1:" + selectedProduct.option1)
 
     let productID = null;
     let productQuantity = null;
@@ -1038,7 +1006,6 @@ function checkProductId(productName, productOption, foodSelection){
         productID = optionThree ? optionThree.id : null;
         productTicketType = optionThree ? optionThree.ticketType : null;
         productQuantity = optionThree ? optionThree.ticketQuantity : null;
-        console.log("Here is child details: ", productID)
     }
 
     else if (productOption === selectedProduct.option4) {
@@ -1046,15 +1013,16 @@ function checkProductId(productName, productOption, foodSelection){
         productID = optionFour ? optionFour.id : null;
         productTicketType = optionFour ? optionFour.ticketType : null;
         productQuantity = optionFour ? optionFour.ticketQuantity : null;
-        console.log("Here is child details: ", productID)
+    }
+
+    else if (productOption === selectedProduct.option5) {
+        const optionFive = selectedProduct.type.find(type => type.ticketType === selectedProduct.option5);
+        productID = optionFive ? optionFive.id : null;
+        productTicketType = optionFive ? optionFive.ticketType : null;
+        productQuantity = optionFive ? optionFive.ticketQuantity : null;
     }
 
     if (productID !== null) {
-        //console.log("Product Name: " + selectedProduct.name);
-        //console.log("Product TicketType: " + productTicketType);
-        //console.log("Product ID: " + productID);
-        //console.log("Product Quantity: " + productQuantity);
-        // Call the addCart function with the product ID and selected value
         if(productQuantity == 0){
             window.alert("The " + productTicketType + " ticket is sold out for this event.");
         }
@@ -1063,17 +1031,21 @@ function checkProductId(productName, productOption, foodSelection){
             const shouldShowSeatSelection = selectedProduct.hasSeatSelection && 
                 selectedProduct.seatSelectionTypes && 
                 selectedProduct.seatSelectionTypes.includes(productTicketType);
- 
+
                 if (shouldShowSeatSelection && (!foodSelection)) {
-                    window.alert("Please select a food option");
+                    window.alert("Please select a food option.");
+                } else if (document.getElementById(CheckSelection)?.checked && (!foodSelection)) {
+                    window.alert("Please select a food option before proceeding.");
                 } else if (!seatMap && shouldShowSeatSelection) {
                     seatMap = new SeatMap('seat-map-container', productID, 1);
                     seatMap.init();
+                } else if (selectedProduct.option5 === 'Extra Meal' && (!foodSelection)) {
+                    window.alert("Please select a food option.");
                 } else {
-                    // Proceed with normal cart addition for non-seat-selection tickets
-                    console.log("Initial FoodSelection: ", foodSelection);
+                    // Proceed with normal cart addition
                     addCart(productID, productTicketType, selectedValue, foodSelection);
                 }
+                
         }
     }
 }
@@ -1104,45 +1076,37 @@ function addCart(productTypeID, productTicketType, selectedSeats = [], foodSelec
                         listCart[productTypeID].staticQuantity = productType.ticketQuantity;
                         listCart[productTypeID].ticktype = productType.ticketType;
                         listCart[productTypeID].variablePrice = productType.price;
-                        
+
+                        listCart[productTypeID].foodCount = {};
+                        listCart[productTypeID].foodPrice = 0;
+                        listCart[productTypeID].foodSelection = foodSelection;
+
                         // Add selected seats if available
                         if (selectedSeats.length > 0) {
                             listCart[productTypeID].selectedSeats = selectedSeats;
-                            listCart[productTypeID].foodSeatArrayR = [];
-                            console.log("Entered here again:", foodSelection);
-                            // if(foodSelection == "Chicken"){
-                            //     chickenMealCount+=1;
-                            // }
-                            // else {
-                            //     vegMealCount+=1;
-                            // }
+                        }
 
-                            // listCart[productTypeID].chickenMealCount = chickenMealCount;
-                            // listCart[productTypeID].vegMealCount = vegMealCount;
+                        if (foodSelection) {
+                            //listCart[productTypeID].foodPrice = 0;
+                            listCart[productTypeID].foodSelection = foodSelection;
+                        
+                            // Initialize food tracking if not already present
+                            listCart[productTypeID].foodCount = listCart[productTypeID].foodCount || {};
+                            listCart[productTypeID].foodCount[foodSelection] = (listCart[productTypeID].foodCount[foodSelection] || 0) + 1;
+                        
+                            // Initialize foodSelections array
+                            listCart[productTypeID].foodSelections = listCart[productTypeID].foodSelections || [];
+                            listCart[productTypeID].foodSelections.push(foodSelection);
+                        
+                            // Save last selected food
+                            listCart[productTypeID].selectedFood = foodSelection;
 
-                            for (let i = 0; i < selectedSeats.length; i++) {
-                                listCart[productTypeID].foodSeatArrayR.push({
-                                    seatNumber: selectedSeats[i],
-                                    food: foodSelection[i] // Assign food selection for each seat
-                                });
+                            const hasSeatSelection = listCart[productTypeID].seatSelectionTypes?.includes(listCart[productTypeID].ticktype) && 
+                            listCart[productTypeID].selectedSeats?.length > 0 || listCart[productTypeID].ticktype === "Extra Meal";
+
+                            if (!hasSeatSelection) {
+                                listCart[productTypeID].foodPrice = (listCart[productTypeID].foodPrice || 0) + 10;
                             }
-                            
-                            
-                            console.log("Selected Seats added: ", listCart[productTypeID].foodSeatArrayR)
-                            
-                            if(Array.isArray(selectedSeats) && selectedSeats.length > 0){
-
-                                // selectedSeats.forEach((seat, index) => {
-                                //     listCart[productTypeID].foodSeatArray.push({
-                                //         seat: seat, // Store the seat
-                                //         food: foodSelection // Match food, fallback to null if no match
-                                //     });
-                                // });
-                            }
-                            console.log("food selection: ", foodSelection);
-                            console.log("food array: ", listCart[productTypeID].foodSeatArray);
-
-                            // console.log(listCart[productTypeID].foodSeatArray)
                         }
 
                         if (listCart[productTypeID].ticketQuantity > 0) {
@@ -1167,13 +1131,48 @@ function addCart(productTypeID, productTicketType, selectedSeats = [], foodSelec
         if (listCart[productTypeID].ticketQuantity > 0) {
             listCart[productTypeID].quantity++;
             listCart[productTypeID].ticketQuantity--;
+
+            //listCart[productTypeID].foodPrice += 10;
+            //listCart[productTypeID].foodCount[foodSelection]++;
+            const hasSeatSelection = listCart[productTypeID].seatSelectionTypes?.includes(listCart[productTypeID].ticktype) && 
+            listCart[productTypeID].selectedSeats?.length > 0 || listCart[productTypeID].ticktype === "Extra Meal";
+
+            if (foodSelection) {
+                // Ensure foodCount exists
+                listCart[productTypeID].foodCount = listCart[productTypeID].foodCount || {};
+
+                // Increment food count
+                listCart[productTypeID].foodCount[foodSelection] = 
+                (listCart[productTypeID].foodCount[foodSelection] || 0) + 1;
+
+                // Only add to foodPrice if this ticket does NOT have seat selection
+                if (!hasSeatSelection) {
+                    listCart[productTypeID].foodPrice = (listCart[productTypeID].foodPrice || 0) + 10;
+                }
+
+                // Optionally, track selectedFood if needed
+                listCart[productTypeID].selectedFood = foodSelection;
+            }
+
         } else {
             console.log(" ");
         }
     }
     
-    document.cookie = "listCart=" + JSON.stringify(listCart);
+    document.cookie = "listCart=" + JSON.stringify(listCart) + "; path=/";
     addCartToHTML();
+
+    // Emit cart update event if using WebSocket
+    const ws = new WebSocket(host); // Replace with your WebSocket server URL
+    ws.addEventListener('open', () => {
+        const message = JSON.stringify({
+            action: 'updateCart',
+            cart: listCart,
+            requestFetch: true
+        });
+        ws.send(message);
+    });
+    
 }
 
 addCartToHTML();
@@ -1200,8 +1199,21 @@ function addCartToHTML() {
                 let foodSelect = '';
                 if (product.seatSelectionTypes?.includes(product.ticktype) && product.selectedSeats?.length > 0) {
                     seatInfo = `<div class="seat-info">Seat${product.selectedSeats.length > 1 ? 's' : ''}: ${product.selectedSeats.join(', ')}</div>`;
-                    foodSelect = `<div class="seat-info">Meal: ${document.getElementById('food-option-1').value}</div>`;
-                }
+                    const foodItems = Object.entries(product.foodCount).map(([foodName, quantity]) => {
+                      return `<div class="seat-info">Meal: ${foodName} x${quantity}</div>`;
+                    }).join('');
+                    foodSelect = foodItems;
+                    //foodSelect = `<div class="seat-info">Meal: ${product.selectedFood} x${product.foodCount}</div>`;
+                } else {
+                    if (product.foodCount) {
+                        const foodItems = Object.entries(product.foodCount).map(([foodName, quantity]) => {
+                            return `<div class="seat-info">Meal: ${foodName} x${quantity} (+€${quantity * 10})</div>`;
+                        }).join('');
+                        foodSelect = foodItems;
+                    } else {
+                        foodSelect = '';
+                    }
+                }                    
             
                 //const foodSelection = foodSelect.value;
 
@@ -1221,20 +1233,18 @@ function addCartToHTML() {
                     <div class="quantity">
                         <button onclick="changeQuantity(${productTypeID}, '-')">-</button>
                         <span class="value">${product.quantity}</span>
-                        <button onclick="changeQuantity(${productTypeID}, '+')">+</button>
+                        <button onclick="changeQuantity(${productTypeID}, '+', '${product.foodSelection}')">+</button>
                     </div>`;
                 listCartHTML.appendChild(newCart);
                 totalQuantity = totalQuantity + product.quantity;
-                //console.log("product quantity: " + product.quantity);
-                //console.log("product ticket type: " + listCart[productTypeID].ticktype);
             }
         });
     }
     totalHTML.innerText = totalQuantity;
-    document.cookie = "listCart=" + JSON.stringify(listCart);
+    document.cookie = "listCart=" + JSON.stringify(listCart) + "; path=/";
 }
 
-function changeQuantity($idProduct, $type) {
+function changeQuantity($idProduct, $type, foodSelection) {
     const product = listCart[$idProduct];
     const selectedProduct = products.find(p => {
         return p.type.some(t => t.id === parseInt($idProduct));
@@ -1244,6 +1254,8 @@ function changeQuantity($idProduct, $type) {
     const shouldShowSeatSelection = selectedProduct.hasSeatSelection && 
         selectedProduct.seatSelectionTypes && 
         selectedProduct.seatSelectionTypes.includes(ticketType);
+
+    const selectedFood = product.foodSelection; // ✅ Safely reference stored food
 
     switch ($type) {
         case '+':
@@ -1258,6 +1270,27 @@ function changeQuantity($idProduct, $type) {
                     // Regular increment for non-seat selection tickets
                     listCart[$idProduct].quantity++;
                     listCart[$idProduct].ticketQuantity--;
+
+                    const ticketType = listCart[$idProduct].ticktype;
+                    const hasSeatSelection = listCart[$idProduct].seatSelectionTypes?.includes(listCart[$idProduct].ticktype) && 
+                    listCart[$idProduct].selectedSeats?.length > 0;
+        
+                    if (selectedFood) {
+                        // Ensure foodCount exists
+                        product.foodCount = product.foodCount || {};
+                        product.foodCount[foodSelection] = (product.foodCount[foodSelection] || 0) + 1;
+        
+                        // Only add to foodPrice if this ticket does NOT have seat selection
+                        if (!hasSeatSelection && ticketType !== "Extra Meal") {
+                            product.foodPrice = (product.foodPrice || 0) + 10;
+                        } else if (ticketType === "Extra Meal"){
+                            product.foodPrice = (product.foodPrice || 0) + 0;
+                        }
+        
+                        // Optionally, track selectedFood if needed
+                        product.foodSelections = product.foodSelections || [];
+                        product.foodSelections.push(selectedFood);
+                    }
                 }
             } else {
                 console.log(" ");
@@ -1285,6 +1318,16 @@ function changeQuantity($idProduct, $type) {
             
             listCart[$idProduct].quantity--;
             listCart[$idProduct].ticketQuantity++;
+
+            if (selectedFood && product.foodCount?.[selectedFood]) {
+                product.foodCount[selectedFood]--;
+                product.foodPrice = Math.max((product.foodPrice || 0) - 10, 0);
+
+                // Optional cleanup
+                if (product.foodCount[selectedFood] === 0) {
+                    delete product.foodCount[selectedFood];
+                }
+            }
 
             // Remove product from cart if quantity reaches 0
             if (listCart[$idProduct].quantity <= 0) {
@@ -1322,7 +1365,7 @@ function changeQuantity($idProduct, $type) {
     }
 
     // Save cart data and update display
-    document.cookie = "listCart=" + JSON.stringify(listCart);
+    document.cookie = "listCart=" + JSON.stringify(listCart) + "; path=/";
     addCartToHTML();
 }
 
@@ -1354,8 +1397,6 @@ function checkPromo(promoCode){
 
         document.getElementById('name').value = '';
         document.getElementById('name').disabled = true;
-
-        // console.log(listCart.promotionApplied);
     }
     else {
         promoStatus.style.display = 'block';
@@ -1363,7 +1404,7 @@ function checkPromo(promoCode){
         promoStatus.textContent = '⚠️ Enter a valid promo code.';
     }
 
-    document.cookie = "listCart=" + JSON.stringify(listCart);
+    document.cookie = "listCart=" + JSON.stringify(listCart) + "; path=/";
 }
 
 function deleteAllPromo() {
@@ -1380,13 +1421,39 @@ function getFoodSelection(selectId) {
     return select ? select.value : null;
 }
 
+function getCheckSelection(selectId) {
+    // const select = document.getElementById(selectId);
+    // return select ? select.value : null;
+    const select = selectId;
+    return select
+}
+
 function updateFoodSelection(selectElement, ticketType) {
     const cartButton = selectElement.parentElement.nextElementSibling.querySelector('button');
-    if (!selectElement.value) {
-        cartButton.disabled = true;
-        cartButton.style.opacity = '0.5';
-    } else {
-        cartButton.disabled = false;
-        cartButton.style.opacity = '1';
+    // if (!selectElement.value) {
+    //     cartButton.disabled = true;
+    //     cartButton.style.opacity = '0.5';
+    // } else {
+    //     cartButton.disabled = false;
+    //     cartButton.style.opacity = '1';
+    // }
+}
+
+function toggleFoodSelect(checkbox, foodSelectId) {
+    const foodSelect = document.getElementById(foodSelectId);
+    if (foodSelect) {
+        foodSelect.disabled = !checkbox.checked;
+        
+        // Reset food selection when unchecked
+        if (!checkbox.checked) {
+            foodSelect.value = "";
+            updateFoodSelection(foodSelect, '${selectedProduct.option3}');
+        }
+    }
+    
+    // Also toggle the Add to Cart button
+    const cartBtn = document.getElementById('cart-btn-3');
+    if (cartBtn) {
+        cartBtn.disabled = !checkbox.checked;
     }
 }
